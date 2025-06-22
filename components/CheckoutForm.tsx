@@ -8,24 +8,38 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Truck, Lock, CreditCard, Mail } from "lucide-react"
+import { Truck, Lock, CreditCard, Mail, Globe } from "lucide-react"
 import { useCart } from "@/lib/cart"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import toast from "react-hot-toast"
+import {
+  countries,
+  getCountryByCode,
+  getStatesForCountry,
+  getAddressLabels,
+  formatCurrency,
+  stripeSupportedCurrencies,
+} from "@/lib/countries"
 
-const shippingSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Valid email is required"),
-  address: z.string().min(1, "Address is required"),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  zipCode: z.string().min(5, "Valid ZIP code is required"),
-})
+const createShippingSchema = (countryCode: string) => {
+  const labels = getAddressLabels(countryCode)
 
-type ShippingFormData = z.infer<typeof shippingSchema>
+  return z.object({
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    email: z.string().email("Valid email is required"),
+    phone: z.string().min(1, "Phone number is required"),
+    address: z.string().min(1, `${labels.address} is required`),
+    city: z.string().min(1, `${labels.city} is required`),
+    state: labels.stateRequired ? z.string().min(1, `${labels.state} is required`) : z.string().optional(),
+    postalCode: z.string().min(1, `${labels.postalCode} is required`),
+    country: z.string().min(1, "Country is required"),
+  })
+}
+
+type ShippingFormData = z.infer<ReturnType<typeof createShippingSchema>>
 
 interface CheckoutFormProps {
   clientSecret: string
@@ -37,6 +51,12 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
   const { items, getTotal, clearCart } = useCart()
   const [isProcessing, setIsProcessing] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [selectedCountry, setSelectedCountry] = useState("US")
+  const [currency, setCurrency] = useState("USD")
+
+  const country = getCountryByCode(selectedCountry)
+  const addressLabels = getAddressLabels(selectedCountry)
+  const statesForCountry = getStatesForCountry(selectedCountry)
 
   const {
     register,
@@ -44,18 +64,35 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
     formState: { errors },
     setValue,
     watch,
-    getValues,
+    reset,
   } = useForm<ShippingFormData>({
-    resolver: zodResolver(shippingSchema),
+    resolver: zodResolver(createShippingSchema(selectedCountry)),
+    defaultValues: {
+      country: selectedCountry,
+    },
   })
 
   const subtotal = getTotal()
-  const tax = subtotal * 0.08
+  const tax = selectedCountry === "US" ? subtotal * 0.08 : 0 // Only apply tax for US
   const total = subtotal + tax
+
+  // Update currency when country changes
+  useEffect(() => {
+    if (country && stripeSupportedCurrencies.includes(country.currency)) {
+      setCurrency(country.currency)
+    } else {
+      setCurrency("USD") // Fallback to USD for unsupported currencies
+    }
+  }, [country])
+
+  // Reset form when country changes
+  useEffect(() => {
+    setValue("country", selectedCountry)
+    setValue("state", "") // Reset state when country changes
+  }, [selectedCountry, setValue])
 
   useEffect(() => {
     if (!stripe) return
-
     if (!clientSecret) return
 
     stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
@@ -94,12 +131,13 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
           return_url: `${window.location.origin}/order-confirmation`,
           shipping: {
             name: `${data.firstName} ${data.lastName}`,
+            phone: data.phone,
             address: {
               line1: data.address,
               city: data.city,
-              state: data.state,
-              postal_code: data.zipCode,
-              country: "US",
+              state: data.state || undefined,
+              postal_code: data.postalCode,
+              country: data.country,
             },
           },
           receipt_email: data.email,
@@ -136,13 +174,12 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
               name: `${data.firstName} ${data.lastName}`,
               address: data.address,
               city: data.city,
-              state: data.state,
-              zipCode: data.zipCode,
+              state: data.state || "",
+              zipCode: data.postalCode,
             },
             paymentIntentId: paymentIntent.id,
           }
 
-          // Send email via API
           await fetch("/api/send-order-email", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -150,11 +187,9 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
           })
         } catch (emailError) {
           console.error("Error sending confirmation email:", emailError)
-          // Don't fail the checkout if email fails
         }
 
         clearCart()
-        // Redirect to confirmation page
         window.location.href = `/order-confirmation?payment_intent=${paymentIntent.id}&payment_intent_client_secret=${paymentIntent.client_secret}`
       }
     } catch (err) {
@@ -179,6 +214,28 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Country Selection */}
+              <div>
+                <Label htmlFor="country" className="text-gray-300 flex items-center">
+                  <Globe className="mr-1 h-4 w-4" />
+                  Country *
+                </Label>
+                <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                    <SelectValue placeholder="Select country" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-700 border-gray-600 max-h-60">
+                    {countries.map((country) => (
+                      <SelectItem key={country.code} value={country.code} className="text-white hover:bg-gray-600">
+                        {country.name} ({country.currencySymbol})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.country && <p className="text-red-400 text-sm mt-1">{errors.country.message}</p>}
+              </div>
+
+              {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="firstName" className="text-gray-300">
@@ -195,207 +252,122 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                   {errors.lastName && <p className="text-red-400 text-sm mt-1">{errors.lastName.message}</p>}
                 </div>
               </div>
-              <div>
-                <Label htmlFor="email" className="text-gray-300 flex items-center">
-                  <Mail className="mr-1 h-4 w-4" />
-                  Email (for order confirmation) *
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...register("email")}
-                  className="bg-gray-700 border-gray-600 text-white"
-                  placeholder="your@email.com"
-                />
-                {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
-                <p className="text-gray-400 text-xs mt-1">We'll send your order confirmation and tracking info here</p>
+
+              {/* Contact Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="email" className="text-gray-300 flex items-center">
+                    <Mail className="mr-1 h-4 w-4" />
+                    Email *
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    {...register("email")}
+                    className="bg-gray-700 border-gray-600 text-white"
+                    placeholder="your@email.com"
+                  />
+                  {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="phone" className="text-gray-300">
+                    Phone {country?.phoneCode} *
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    {...register("phone")}
+                    className="bg-gray-700 border-gray-600 text-white"
+                    placeholder={`${country?.phoneCode || "+1"} 123 456 7890`}
+                  />
+                  {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>}
+                </div>
               </div>
+
+              {/* Address */}
               <div>
                 <Label htmlFor="address" className="text-gray-300">
-                  Address *
+                  {addressLabels.address} *
                 </Label>
                 <Input id="address" {...register("address")} className="bg-gray-700 border-gray-600 text-white" />
                 {errors.address && <p className="text-red-400 text-sm mt-1">{errors.address.message}</p>}
               </div>
-              <div className="grid grid-cols-2 gap-4">
+
+              {/* City, State, Postal Code */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="city" className="text-gray-300">
-                    City *
+                    {addressLabels.city} *
                   </Label>
                   <Input id="city" {...register("city")} className="bg-gray-700 border-gray-600 text-white" />
                   {errors.city && <p className="text-red-400 text-sm mt-1">{errors.city.message}</p>}
                 </div>
+
+                {/* State/Province - Show dropdown for supported countries, input for others */}
                 <div>
-                  <Label htmlFor="zipCode" className="text-gray-300">
-                    ZIP Code *
+                  <Label htmlFor="state" className="text-gray-300">
+                    {addressLabels.state} {addressLabels.stateRequired ? "*" : ""}
                   </Label>
-                  <Input id="zipCode" {...register("zipCode")} className="bg-gray-700 border-gray-600 text-white" />
-                  {errors.zipCode && <p className="text-red-400 text-sm mt-1">{errors.zipCode.message}</p>}
+                  {statesForCountry.length > 0 ? (
+                    <Select onValueChange={(value) => setValue("state", value)}>
+                      <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                        <SelectValue placeholder={`Select ${addressLabels.state.toLowerCase()}`} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-700 border-gray-600 max-h-60">
+                        {statesForCountry.map((state) => (
+                          <SelectItem key={state.code} value={state.code} className="text-white hover:bg-gray-600">
+                            {state.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      id="state"
+                      {...register("state")}
+                      className="bg-gray-700 border-gray-600 text-white"
+                      placeholder={addressLabels.state}
+                    />
+                  )}
+                  {errors.state && <p className="text-red-400 text-sm mt-1">{errors.state.message}</p>}
+                </div>
+
+                <div>
+                  <Label htmlFor="postalCode" className="text-gray-300">
+                    {addressLabels.postalCode} *
+                  </Label>
+                  <Input
+                    id="postalCode"
+                    {...register("postalCode")}
+                    className="bg-gray-700 border-gray-600 text-white"
+                    placeholder={
+                      selectedCountry === "US"
+                        ? "12345"
+                        : selectedCountry === "CA"
+                          ? "A1A 1A1"
+                          : selectedCountry === "GB"
+                            ? "SW1A 1AA"
+                            : "12345"
+                    }
+                  />
+                  {errors.postalCode && <p className="text-red-400 text-sm mt-1">{errors.postalCode.message}</p>}
                 </div>
               </div>
-              <div>
-                <Label htmlFor="state" className="text-gray-300">
-                  State *
-                </Label>
-                <Select onValueChange={(value) => setValue("state", value)}>
-                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                    <SelectValue placeholder="Select state" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-700 border-gray-600">
-                    <SelectItem value="AL" className="text-white">
-                      Alabama
-                    </SelectItem>
-                    <SelectItem value="AK" className="text-white">
-                      Alaska
-                    </SelectItem>
-                    <SelectItem value="AZ" className="text-white">
-                      Arizona
-                    </SelectItem>
-                    <SelectItem value="AR" className="text-white">
-                      Arkansas
-                    </SelectItem>
-                    <SelectItem value="CA" className="text-white">
-                      California
-                    </SelectItem>
-                    <SelectItem value="CO" className="text-white">
-                      Colorado
-                    </SelectItem>
-                    <SelectItem value="CT" className="text-white">
-                      Connecticut
-                    </SelectItem>
-                    <SelectItem value="DE" className="text-white">
-                      Delaware
-                    </SelectItem>
-                    <SelectItem value="FL" className="text-white">
-                      Florida
-                    </SelectItem>
-                    <SelectItem value="GA" className="text-white">
-                      Georgia
-                    </SelectItem>
-                    <SelectItem value="HI" className="text-white">
-                      Hawaii
-                    </SelectItem>
-                    <SelectItem value="ID" className="text-white">
-                      Idaho
-                    </SelectItem>
-                    <SelectItem value="IL" className="text-white">
-                      Illinois
-                    </SelectItem>
-                    <SelectItem value="IN" className="text-white">
-                      Indiana
-                    </SelectItem>
-                    <SelectItem value="IA" className="text-white">
-                      Iowa
-                    </SelectItem>
-                    <SelectItem value="KS" className="text-white">
-                      Kansas
-                    </SelectItem>
-                    <SelectItem value="KY" className="text-white">
-                      Kentucky
-                    </SelectItem>
-                    <SelectItem value="LA" className="text-white">
-                      Louisiana
-                    </SelectItem>
-                    <SelectItem value="ME" className="text-white">
-                      Maine
-                    </SelectItem>
-                    <SelectItem value="MD" className="text-white">
-                      Maryland
-                    </SelectItem>
-                    <SelectItem value="MA" className="text-white">
-                      Massachusetts
-                    </SelectItem>
-                    <SelectItem value="MI" className="text-white">
-                      Michigan
-                    </SelectItem>
-                    <SelectItem value="MN" className="text-white">
-                      Minnesota
-                    </SelectItem>
-                    <SelectItem value="MS" className="text-white">
-                      Mississippi
-                    </SelectItem>
-                    <SelectItem value="MO" className="text-white">
-                      Missouri
-                    </SelectItem>
-                    <SelectItem value="MT" className="text-white">
-                      Montana
-                    </SelectItem>
-                    <SelectItem value="NE" className="text-white">
-                      Nebraska
-                    </SelectItem>
-                    <SelectItem value="NV" className="text-white">
-                      Nevada
-                    </SelectItem>
-                    <SelectItem value="NH" className="text-white">
-                      New Hampshire
-                    </SelectItem>
-                    <SelectItem value="NJ" className="text-white">
-                      New Jersey
-                    </SelectItem>
-                    <SelectItem value="NM" className="text-white">
-                      New Mexico
-                    </SelectItem>
-                    <SelectItem value="NY" className="text-white">
-                      New York
-                    </SelectItem>
-                    <SelectItem value="NC" className="text-white">
-                      North Carolina
-                    </SelectItem>
-                    <SelectItem value="ND" className="text-white">
-                      North Dakota
-                    </SelectItem>
-                    <SelectItem value="OH" className="text-white">
-                      Ohio
-                    </SelectItem>
-                    <SelectItem value="OK" className="text-white">
-                      Oklahoma
-                    </SelectItem>
-                    <SelectItem value="OR" className="text-white">
-                      Oregon
-                    </SelectItem>
-                    <SelectItem value="PA" className="text-white">
-                      Pennsylvania
-                    </SelectItem>
-                    <SelectItem value="RI" className="text-white">
-                      Rhode Island
-                    </SelectItem>
-                    <SelectItem value="SC" className="text-white">
-                      South Carolina
-                    </SelectItem>
-                    <SelectItem value="SD" className="text-white">
-                      South Dakota
-                    </SelectItem>
-                    <SelectItem value="TN" className="text-white">
-                      Tennessee
-                    </SelectItem>
-                    <SelectItem value="TX" className="text-white">
-                      Texas
-                    </SelectItem>
-                    <SelectItem value="UT" className="text-white">
-                      Utah
-                    </SelectItem>
-                    <SelectItem value="VT" className="text-white">
-                      Vermont
-                    </SelectItem>
-                    <SelectItem value="VA" className="text-white">
-                      Virginia
-                    </SelectItem>
-                    <SelectItem value="WA" className="text-white">
-                      Washington
-                    </SelectItem>
-                    <SelectItem value="WV" className="text-white">
-                      West Virginia
-                    </SelectItem>
-                    <SelectItem value="WI" className="text-white">
-                      Wisconsin
-                    </SelectItem>
-                    <SelectItem value="WY" className="text-white">
-                      Wyoming
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.state && <p className="text-red-400 text-sm mt-1">{errors.state.message}</p>}
-              </div>
+
+              {/* Currency Notice */}
+              {country && (
+                <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-3">
+                  <div className="flex items-center text-blue-300 text-sm">
+                    <Globe className="mr-2 h-4 w-4" />
+                    <span>
+                      Prices shown in {currency}.
+                      {currency !== country.currency && (
+                        <span className="text-yellow-300 ml-1">(Your local currency: {country.currency})</span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -417,6 +389,8 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                       billingDetails: {
                         name: "auto",
                         email: "auto",
+                        phone: "auto",
+                        address: "auto",
                       },
                     },
                   }}
@@ -444,9 +418,11 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                       </div>
                       <div className="flex-1">
                         <p className="text-white text-sm font-medium line-clamp-2">{item.product.name}</p>
-                        <p className="text-gray-400 text-xs">${item.product.price.toFixed(2)} each</p>
+                        <p className="text-gray-400 text-xs">{formatCurrency(item.product.price, currency)} each</p>
                       </div>
-                      <p className="text-white font-semibold">${(item.product.price * item.quantity).toFixed(2)}</p>
+                      <p className="text-white font-semibold">
+                        {formatCurrency(item.product.price * item.quantity, currency)}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -457,20 +433,22 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                 <div className="space-y-2">
                   <div className="flex justify-between text-gray-300">
                     <span>Subtotal ({items.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>{formatCurrency(subtotal, currency)}</span>
                   </div>
                   <div className="flex justify-between text-gray-300">
-                    <span>Shipping</span>
+                    <span>Shipping to {country?.name}</span>
                     <span className="text-green-400">Free</span>
                   </div>
-                  <div className="flex justify-between text-gray-300">
-                    <span>Tax</span>
-                    <span>${tax.toFixed(2)}</span>
-                  </div>
+                  {tax > 0 && (
+                    <div className="flex justify-between text-gray-300">
+                      <span>Tax</span>
+                      <span>{formatCurrency(tax, currency)}</span>
+                    </div>
+                  )}
                   <Separator className="bg-gray-700" />
                   <div className="flex justify-between text-white font-bold text-lg">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>{formatCurrency(total, currency)}</span>
                   </div>
                 </div>
 
@@ -496,7 +474,7 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                   ) : (
                     <div className="flex items-center">
                       <Lock className="mr-2 h-4 w-4" />
-                      Pay ${total.toFixed(2)}
+                      Pay {formatCurrency(total, currency)}
                     </div>
                   )}
                 </Button>

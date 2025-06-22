@@ -16,9 +16,10 @@ export default function CheckoutPage() {
   const { items, getTotal } = useCart()
   const [clientSecret, setClientSecret] = useState<string>("")
   const [loading, setLoading] = useState(true)
+  const [currency, setCurrency] = useState("USD")
 
   const subtotal = getTotal()
-  const tax = subtotal * 0.08
+  const tax = subtotal * 0.08 // This will be adjusted based on country in the form
   const total = subtotal + tax
 
   useEffect(() => {
@@ -43,8 +44,9 @@ export default function CheckoutPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         amount: total,
-        currency: "usd",
+        currency: "USD", // Default currency, will be updated based on country selection
         items: orderItems,
+        countryCode: "US", // Default country
         metadata: {
           order_date: new Date().toISOString(),
           item_count: items.reduce((sum, item) => sum + item.quantity, 0),
@@ -61,6 +63,7 @@ export default function CheckoutPage() {
         console.log("Payment intent response:", data)
         if (data.clientSecret) {
           setClientSecret(data.clientSecret)
+          setCurrency(data.currency || "USD")
           toast.success("Checkout ready!")
         } else {
           throw new Error("No client secret received")
@@ -80,7 +83,7 @@ export default function CheckoutPage() {
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Preparing your checkout...</p>
+          <p className="text-gray-400">Preparing your international checkout...</p>
         </div>
         <Footer />
       </div>
@@ -137,7 +140,12 @@ export default function CheckoutPage() {
       />
 
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-silver-400 mb-8">Secure Checkout</h1>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-silver-400 mb-2">International Checkout</h1>
+          <p className="text-gray-400">
+            We ship worldwide! Select your country for local pricing and shipping options.
+          </p>
+        </div>
 
         {clientSecret && (
           <Elements options={options} stripe={stripePromise}>
