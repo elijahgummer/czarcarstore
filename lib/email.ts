@@ -1,6 +1,10 @@
 import { Resend } from "resend"
 
+// Initialize Resend with better error handling
 const resend = new Resend(process.env.RESEND_API_KEY)
+
+// Add debug logging
+console.log("Resend API Key configured:", !!process.env.RESEND_API_KEY)
 
 export interface OrderEmailData {
   customerEmail: string
@@ -25,22 +29,34 @@ export interface OrderEmailData {
 
 export async function sendOrderConfirmationEmail(orderData: OrderEmailData) {
   try {
+    console.log("Attempting to send email to:", orderData.customerEmail)
+    console.log("Order data:", JSON.stringify(orderData, null, 2))
+
+    // Validate required data
+    if (!orderData.customerEmail) {
+      throw new Error("Customer email is required")
+    }
+
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY environment variable is not set")
+    }
+
     const { data, error } = await resend.emails.send({
-      from: "CzarCar <orders@czarcar.com>",
+      from: "CzarCar <onboarding@resend.dev>", // Use Resend's default domain for testing
       to: [orderData.customerEmail],
       subject: `Order Confirmation - ${orderData.orderNumber}`,
       html: generateOrderConfirmationHTML(orderData),
     })
 
     if (error) {
-      console.error("Error sending email:", error)
+      console.error("Resend API error:", error)
       return { success: false, error }
     }
 
-    console.log("Order confirmation email sent:", data)
+    console.log("Email sent successfully:", data)
     return { success: true, data }
   } catch (error) {
-    console.error("Error sending email:", error)
+    console.error("Error in sendOrderConfirmationEmail:", error)
     return { success: false, error }
   }
 }

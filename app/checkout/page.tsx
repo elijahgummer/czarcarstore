@@ -36,6 +36,8 @@ export default function CheckoutPage() {
       total: item.product.price * item.quantity,
     }))
 
+    console.log("Creating payment intent with items:", orderItems)
+
     fetch("/api/create-payment-intent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -44,7 +46,6 @@ export default function CheckoutPage() {
         currency: "usd",
         items: orderItems,
         metadata: {
-          customer_name: "Customer", // This would come from form
           order_date: new Date().toISOString(),
           item_count: items.reduce((sum, item) => sum + item.quantity, 0),
         },
@@ -57,6 +58,7 @@ export default function CheckoutPage() {
         return res.json()
       })
       .then((data) => {
+        console.log("Payment intent response:", data)
         if (data.clientSecret) {
           setClientSecret(data.clientSecret)
           toast.success("Checkout ready!")
