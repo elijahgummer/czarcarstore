@@ -12,12 +12,17 @@ export interface Product {
   featured: boolean;
   inStock: true;
   specifications?: Record<string, string>;
+  colors?: { name: string; image: string }[];
 }
 
 const products: Product[] = [
   {
     id: "1",
     name: "Engine Funnel Car Universal Silicone Liquid Funnel",
+    colors: [
+      { name: "Blue", image: "/products/product-1/blue.png" },
+      { name: "Black", image: "/products/product-1/black.png" },
+    ],
     description:
       "Collapsible Silicone Car Funnel. High-quality, heat-resistant silicone (-20°C to 220°C). Foldable, space-saving design. Easy to clean and hang. Universal fitment for all cars. Available in blue or black color. Avoid cutting or prolonged high heat. Clean with neutral detergent.",
     price: 13.95,
@@ -53,8 +58,21 @@ const products: Product[] = [
     price: 12.95,
     originalPrice: 18.95,
     discount: 32,
-    image: ["/products/product-2/main.png", "/products/product-2/side.png", "/products/product-2/main-1.png", "/products/product-2/display.png", "/products/product-2/styles.png", "/products/product-2/ae-car.png", "/products/product-2/bugatti-car.png", "/products/product-2/ferrari-car.png", "/products/product-2/lambo-car.png", "/products/product-2/nissan-car.png"
-      , "/products/product-2/gtr-car.png", "/products/product-2/supra-car.png", "/products/product-2/porsche-car.png", "/products/product-2/mercedes.png", 
+    image: [
+      "/products/product-2/main.png",
+      "/products/product-2/side.png",
+      "/products/product-2/main-1.png",
+      "/products/product-2/display.png",
+      "/products/product-2/styles.png",
+      "/products/product-2/ae-car.png",
+      "/products/product-2/bugatti-car.png",
+      "/products/product-2/ferrari-car.png",
+      "/products/product-2/lambo-car.png",
+      "/products/product-2/nissan-car.png",
+      "/products/product-2/gtr-car.png",
+      "/products/product-2/supra-car.png",
+      "/products/product-2/porsche-car.png",
+      "/products/product-2/mercedes.png",
     ],
     category: "interior",
     rating: 4.4,

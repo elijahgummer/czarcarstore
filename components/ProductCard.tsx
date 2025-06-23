@@ -19,10 +19,18 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart()
   const [selectedImage, setSelectedImage] = useState(0)
+  const [selectedColor, setSelectedColor] = useState<number | null>(null)
 
+  // Use images array if available, fallback to image array or placeholder
   const images = Array.isArray(product.image)
     ? product.image
     : [product.image || "/placeholder.svg"]
+
+  // If a color is selected and has an image, use that as the main image
+  const mainImage =
+    selectedColor !== null && product.colors && product.colors[selectedColor]?.image
+      ? product.colors[selectedColor].image
+      : images[selectedImage] || "/placeholder.svg"
 
   const handleAddToCart = () => {
     addItem(product)
@@ -42,18 +50,52 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="relative overflow-hidden">
           <Link href={`/products/${product.id}`}>
             <Image
-              src={images[selectedImage] || "/placeholder.svg"}
+              src={mainImage}
               alt={product.name}
               width={300}
               height={200}
               className="w-full h-48 object-contain bg-black group-hover:scale-105 transition-transform duration-300"
             />
           </Link>
-          {product.featured && <Badge className="absolute top-2 left-2 bg-red-600 text-white">Featured</Badge>}
+          {product.featured && (
+            <Badge className="absolute top-2 left-2 bg-red-600 text-white">Featured</Badge>
+          )}
           {product.discount && (
             <Badge className="absolute top-2 right-2 bg-green-600 text-white">-{product.discount}%</Badge>
           )}
         </div>
+
+        {/* Color Swatches */}
+        {product.colors && product.colors.length > 0 && (
+          <div className="flex gap-2 px-4 py-2">
+            {product.colors.map((color, idx) => (
+              <button
+                key={color.name}
+                type="button"
+                onClick={() => {
+                  setSelectedColor(idx)
+                  // Optionally update selectedImage to match color image in images array
+                  const imgIdx = images.findIndex(img => img === color.image)
+                  if (imgIdx !== -1) setSelectedImage(imgIdx)
+                }}
+                className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition
+                  ${selectedColor === idx ? "border-red-500" : "border-gray-400"}`}
+                style={{
+                  background:
+                    color.name.toLowerCase() === "black"
+                      ? "#222"
+                      : color.name.toLowerCase() === "blue"
+                      ? "#3490eb"
+                      : `url(${color.image}) center/cover no-repeat`
+                }}
+                title={color.name}
+              >
+                {/* Optionally show a checkmark or ring if selected */}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Thumbnails */}
         {images.length > 1 && (
           <div className="flex gap-2 px-4 py-2">
@@ -61,8 +103,11 @@ export default function ProductCard({ product }: ProductCardProps) {
               <button
                 key={img}
                 type="button"
-                onClick={() => setSelectedImage(idx)}
-                className={`border ${selectedImage === idx ? "border-red-500" : "border-gray-600"} rounded`}
+                onClick={() => {
+                  setSelectedImage(idx)
+                  setSelectedColor(null) // Deselect color if thumbnail is clicked
+                }}
+                className={`border ${selectedImage === idx && selectedColor === null ? "border-red-500" : "border-gray-600"} rounded`}
                 style={{ padding: 0 }}
               >
                 <Image
@@ -70,7 +115,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   alt={`Thumbnail ${idx + 1}`}
                   width={48}
                   height={48}
-                  className="object-cover w-12 h-12 rounded"
+                  className="object-contain w-12 h-12 rounded bg-black"
                 />
               </button>
             ))}
