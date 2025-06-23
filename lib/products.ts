@@ -1,17 +1,17 @@
 export interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  originalPrice?: number
-  discount?: number
-  image: string
-  category: "maintenance" | "electronics" | "interior" | "safety"
-  rating: number
-  reviews: number
-  featured: boolean
-  inStock: true
-  specifications?: Record<string, string>
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+  image: string[];
+  category: "maintenance" | "electronics" | "interior" | "safety";
+  rating: number;
+  reviews: number;
+  featured: boolean;
+  inStock: true;
+  specifications?: Record<string, string>;
 }
 
 const products: Product[] = [
@@ -23,7 +23,14 @@ const products: Product[] = [
     price: 13.95,
     originalPrice: 19.95,
     discount: 30,
-    image: "/placeholder.svg?height=300&width=300",
+    image: [
+      "/products/product-1/main.png",
+      "/products/product-1/side.png",
+      "/products/product-1/dimensions.png",
+      "/products/product-1/blue.png",
+      "/products/product-1/black.png",
+      "/products/product-1/descript",
+    ],
     category: "maintenance",
     rating: 4.7,
     reviews: 1247,
@@ -75,7 +82,8 @@ const products: Product[] = [
     featured: true,
     inStock: true,
     specifications: {
-      Colors: "8 colors (white, red, blue, green, yellow, pink, purple, ice blue)",
+      Colors:
+        "8 colors (white, red, blue, green, yellow, pink, purple, ice blue)",
       Modes: "Flash, cycle, SOS & constant light",
       Battery: "USB rechargeable",
       "Charge Time": "1 hour",
@@ -240,31 +248,31 @@ const products: Product[] = [
       Includes: "Metal plates, 3M adhesive",
     },
   },
-]
+];
 
 export function getAllProducts(): Product[] {
-  return products
+  return products;
 }
 
 export function getFeaturedProducts(): Product[] {
-  return products.filter((product) => product.featured)
+  return products.filter((product) => product.featured);
 }
 
 export function getProductById(id: string): Product | undefined {
-  return products.find((product) => product.id === id)
+  return products.find((product) => product.id === id);
 }
 
 export function getProductsByCategory(category: string): Product[] {
-  if (category === "all") return products
-  return products.filter((product) => product.category === category)
+  if (category === "all") return products;
+  return products.filter((product) => product.category === category);
 }
 
 export function searchProducts(query: string): Product[] {
-  const lowercaseQuery = query.toLowerCase()
+  const lowercaseQuery = query.toLowerCase();
   return products.filter(
     (product) =>
       product.name.toLowerCase().includes(lowercaseQuery) ||
       product.description.toLowerCase().includes(lowercaseQuery) ||
-      product.category.toLowerCase().includes(lowercaseQuery),
-  )
+      product.category.toLowerCase().includes(lowercaseQuery)
+  );
 }
