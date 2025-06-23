@@ -46,7 +46,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               alt={product.name}
               width={300}
               height={200}
-              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-48 object-contain bg-black group-hover:scale-105 transition-transform duration-300"
             />
           </Link>
           {product.featured && <Badge className="absolute top-2 left-2 bg-red-600 text-white">Featured</Badge>}
