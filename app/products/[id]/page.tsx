@@ -123,6 +123,7 @@ export default function ProductDetailPage() {
                 </button>
               ))}
             </div>
+            
             {/* Mode Selector */}
             {product.modes && product.modes.length > 0 && (
               <>
@@ -157,36 +158,39 @@ export default function ProductDetailPage() {
             )}
             {/* Color Swatches */}
             {product.colors && product.colors.length > 0 && (
-              <div className="flex gap-2 mt-4">
-                {product.colors.map((color, idx) => (
-                  <button
-                    key={color.name}
-                    type="button"
-                    onClick={() => {
-                      setSelectedColor(idx);
-                      setSelectedMode(null); // Deselect mode if color is selected
-                      // Optionally update selectedImage to match color image in images array
-                      const imgIdx = images.findIndex(
-                        (img) => img === color.image
-                      );
-                      if (imgIdx !== -1) setSelectedImage(imgIdx);
-                    }}
-                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition
-              ${selectedColor === idx ? "border-red-500" : "border-gray-400"}`}
-                    style={{
-                      background:
-                        color.name.toLowerCase() === "black"
-                          ? "#222"
-                          : color.name.toLowerCase() === "blue"
-                            ? "#3490eb"
-                            : `url(${color.image}) center/cover no-repeat`,
-                    }}
-                    title={color.name}
-                  >
-                    {/* Optionally show a checkmark or ring if selected */}
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="mt-6 mb-2 font-semibold text-gray-200">Select Color</div>
+                <div className="flex gap-2 mt-4">
+                  {product.colors.map((color, idx) => (
+                    <button
+                      key={color.name}
+                      type="button"
+                      onClick={() => {
+                        setSelectedColor(idx);
+                        setSelectedMode(null); // Deselect mode if color is selected
+                        // Optionally update selectedImage to match color image in images array
+                        const imgIdx = images.findIndex(
+                          (img) => img === color.image
+                        );
+                        if (imgIdx !== -1) setSelectedImage(imgIdx);
+                      }}
+                      className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition
+                ${selectedColor === idx ? "border-red-500" : "border-gray-400"}`}
+                      style={{
+                        background:
+                          color.name.toLowerCase() === "black"
+                            ? "#222"
+                            : color.name.toLowerCase() === "blue"
+                              ? "#3490eb"
+                              : `url(${color.image}) center/cover no-repeat`,
+                      }}
+                      title={color.name}
+                    >
+                      {/* Optionally show a checkmark or ring if selected */}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
           </div>
           {/* Product Info */}
