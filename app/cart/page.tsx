@@ -1,32 +1,38 @@
-"use client"
+"use client";
 
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import { useCart } from "@/lib/cart"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { useCart } from "@/lib/cart";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, getTotal, clearCart } = useCart()
+  const { items, removeItem, updateQuantity, getTotal, clearCart } = useCart();
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white">
-        <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <ShoppingBag className="h-24 w-24 text-gray-600 mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-silver-400 mb-4">Your Cart is Empty</h1>
-          <p className="text-gray-400 mb-8">Add some amazing products to get started!</p>
-          <Button asChild className="bg-red-600 hover:bg-red-700">
-            <Link href="/products">Continue Shopping</Link>
-          </Button>
+      <>
+        <div className="min-h-screen bg-gray-900 text-white">
+          <Header />
+          <div className="container mx-auto px-4 py-16 text-center">
+            <ShoppingBag className="h-24 w-24 text-gray-600 mx-auto mb-6" />
+            <h1 className="text-3xl font-bold text-silver-400 mb-4">
+              Your Cart is Empty
+            </h1>
+            <p className="text-gray-400 mb-8">
+              Add some amazing products to get started!
+            </p>
+            <Button asChild className="bg-red-600 hover:bg-red-700">
+              <Link href="/products">Continue Shopping</Link>
+            </Button>
+          </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
-    )
+      </>
+    );
   }
 
   return (
@@ -34,7 +40,9 @@ export default function CartPage() {
       <Header />
 
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-silver-400 mb-8">Shopping Cart</h1>
+        <h1 className="text-3xl font-bold text-silver-400 mb-8">
+          Shopping Cart
+        </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
@@ -61,31 +69,53 @@ export default function CartPage() {
                       className="flex items-center space-x-4 p-4 border border-gray-700 rounded-lg"
                     >
                       <Image
-                        src={item.product.image || "/placeholder.svg"}
+                        src={
+                          item.selectedColorImage ||
+                          (Array.isArray(item.product.image)
+                            ? item.product.image[0]
+                            : item.product.image) ||
+                          "/placeholder.svg"
+                        }
                         alt={item.product.name}
                         width={80}
                         height={80}
-                        className="w-20 h-20 object-cover rounded"
+                        className="object-contain w-20 h-20 rounded bg-black"
                       />
-
                       <div className="flex-1">
-                        <h3 className="text-white font-semibold">{item.product.name}</h3>
-                        <p className="text-gray-400 text-sm">{item.product.category}</p>
-                        <p className="text-red-400 font-bold">${item.product.price.toFixed(2)}</p>
+                        <h3 className="text-white font-semibold">
+                          {item.product.name}
+                        </h3>
+                        <p className="text-gray-400 text-sm">
+                          {item.product.category}
+                        </p>
+                        {item.selectedColor && (
+                          <span className="text-sm text-gray-400 block">
+                            Color: {item.selectedColor}
+                          </span>
+                        )}
+                        <p className="text-red-400 font-bold">
+                          ${item.product.price.toFixed(2)}
+                        </p>
                       </div>
 
                       <div className="flex items-center space-x-2">
                         <Button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
                           variant="outline"
                           size="icon"
                           className="h-8 w-8 border-gray-600 text-gray-300"
                         >
                           <Minus className="h-4 w-4" />
                         </Button>
-                        <span className="text-white w-8 text-center">{item.quantity}</span>
+                        <span className="text-white w-8 text-center">
+                          {item.quantity}
+                        </span>
                         <Button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
                           variant="outline"
                           size="icon"
                           className="h-8 w-8 border-gray-600 text-gray-300"
@@ -95,7 +125,9 @@ export default function CartPage() {
                       </div>
 
                       <div className="text-right">
-                        <p className="text-white font-semibold">${(item.product.price * item.quantity).toFixed(2)}</p>
+                        <p className="text-white font-semibold">
+                          ${(item.product.price * item.quantity).toFixed(2)}
+                        </p>
                         <Button
                           onClick={() => removeItem(item.id)}
                           variant="ghost"
@@ -140,7 +172,10 @@ export default function CartPage() {
                   </div>
 
                   <div className="space-y-3 mt-6">
-                    <Button asChild className="w-full bg-red-600 hover:bg-red-700 text-white py-3">
+                    <Button
+                      asChild
+                      className="w-full bg-red-600 hover:bg-red-700 text-white py-3"
+                    >
                       <Link href="/checkout">Proceed to Checkout</Link>
                     </Button>
                     <Button
@@ -160,5 +195,5 @@ export default function CartPage() {
 
       <Footer />
     </div>
-  )
+  );
 }
