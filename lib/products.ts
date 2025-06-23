@@ -53,7 +53,9 @@ const products: Product[] = [
     price: 12.95,
     originalPrice: 18.95,
     discount: 32,
-    image: "/placeholder.svg?height=300&width=300",
+    image: ["/products/product-2/main.png", "/products/product-2/side.png", "/products/product-2/main-1.png", "/products/product-2/display.png", "/products/product-2/styles.png", "/products/product-2/ae-car.png", "/products/product-2/bugatti-car.png", "/products/product-2/ferrari-car.png", "/products/product-2/lambo-car.png", "/products/product-2/nissan-car.png"
+      , "/products/product-2/gtr-car.png", "/products/product-2/supra-car.png", "/products/product-2/porsche-car.png", "/products/product-2/mercedes.png", 
+    ],
     category: "interior",
     rating: 4.4,
     reviews: 892,
