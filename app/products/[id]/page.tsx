@@ -125,32 +125,35 @@ export default function ProductDetailPage() {
             </div>
             {/* Mode Selector */}
             {product.modes && product.modes.length > 0 && (
-              <div className="flex gap-2 mt-4">
-                {product.modes.map((mode, idx) => (
-                  <button
-                    key={mode.name}
-                    type="button"
-                    onClick={() => {
-                      setSelectedMode(idx);
-                      setSelectedColor(null); // Deselect color if mode is selected
-                    }}
-                    className={`border-2 rounded-lg overflow-hidden p-0 ${
-                      selectedMode === idx
-                        ? "border-red-500"
-                        : "border-gray-400"
-                    }`}
-                    title={mode.name}
-                  >
-                    <Image
-                      src={mode.image}
-                      alt={mode.name}
-                      width={60}
-                      height={60}
-                      className="object-contain w-14 h-14 bg-black"
-                    />
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="mt-6 mb-2 font-semibold text-gray-200">Select Mode</div>
+                <div className="flex gap-2 mt-4">
+                  {product.modes.map((mode, idx) => (
+                    <button
+                      key={mode.name}
+                      type="button"
+                      onClick={() => {
+                        setSelectedMode(idx);
+                        setSelectedColor(null); // Deselect color if mode is selected
+                      }}
+                      className={`border-2 rounded-lg overflow-hidden p-0 ${
+                        selectedMode === idx
+                          ? "border-red-500"
+                          : "border-gray-400"
+                      }`}
+                      title={mode.name}
+                    >
+                      <Image
+                        src={mode.image}
+                        alt={mode.name}
+                        width={60}
+                        height={60}
+                        className="object-contain w-14 h-14 bg-black"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
             {/* Color Swatches */}
             {product.colors && product.colors.length > 0 && (
