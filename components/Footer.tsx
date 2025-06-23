@@ -10,7 +10,8 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-bold text-red-500 mb-4">CzarCar</h3>
             <p className="text-gray-400 mb-4">
-              Premium car accessories and lighting solutions for automotive enthusiasts.
+              Premium car accessories and gadgets for automotive enthusiasts. From maintenance tools to interior
+              upgrades and safety equipment.
             </p>
             <div className="flex space-x-4">
               <Link href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -38,8 +39,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/products?category=lighting" className="text-gray-400 hover:text-white transition-colors">
-                  LED Lighting
+                <Link
+                  href="/products?category=maintenance"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  Maintenance Tools
                 </Link>
               </li>
               <li>
@@ -51,8 +55,13 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/products?category=detailing" className="text-gray-400 hover:text-white transition-colors">
-                  Detailing Tools
+                <Link href="/products?category=interior" className="text-gray-400 hover:text-white transition-colors">
+                  Interior Accessories
+                </Link>
+              </li>
+              <li>
+                <Link href="/products?category=safety" className="text-gray-400 hover:text-white transition-colors">
+                  Safety Equipment
                 </Link>
               </li>
             </ul>

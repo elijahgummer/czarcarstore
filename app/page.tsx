@@ -3,7 +3,7 @@ import Footer from "@/components/Footer"
 import ProductCard from "@/components/ProductCard"
 import { getFeaturedProducts } from "@/lib/products"
 import Link from "next/link"
-import { ShoppingCart, Zap, Shield, Truck } from "lucide-react"
+import { ShoppingCart, Wrench, Shield, Truck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function HomePage() {
@@ -19,20 +19,18 @@ export default function HomePage() {
           <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-red-500 to-silver-400 bg-clip-text text-transparent">
             CzarCar
           </h1>
-          <p className="text-xl md:text-2xl mb-4 text-gray-300 max-w-3xl mx-auto">
-            Affordable Car Accessories & Electronics
-          </p>
+          <p className="text-xl md:text-2xl mb-4 text-gray-300 max-w-3xl mx-auto">Premium Car Accessories & Gadgets</p>
           <p className="text-lg mb-6 text-yellow-400 font-semibold">
-            🔥 Up to 50% OFF • Free Shipping • Real Products, Real Prices
+            🚗 Quality Products • Fast Shipping • Extra 1% off with coins
           </p>
           <p className="text-base mb-10 text-gray-400 max-w-2xl mx-auto">
-            Popular car accessories starting from $4.99. Phone holders, LED lights, dash cams, and more!
+            Essential car accessories starting from $11.95. Engine funnels, dash cams, LED lights, and more!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-white px-8 py-3">
               <Link href="/products">
                 <ShoppingCart className="mr-2 h-5 w-5" />
-                Shop Now - From $4.99
+                Shop Now - From $11.95
               </Link>
             </Button>
             <Button
@@ -41,7 +39,7 @@ export default function HomePage() {
               size="lg"
               className="border-silver-400 text-silver-400 hover:bg-silver-400 hover:text-gray-900 px-8 py-3"
             >
-              <Link href="#featured">View Deals</Link>
+              <Link href="#featured">View Featured</Link>
             </Button>
           </div>
         </div>
@@ -53,24 +51,24 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="bg-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-8 w-8 text-white" />
+                <Wrench className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-silver-400">Premium Quality</h3>
-              <p className="text-gray-400">Professional-grade accessories built to last</p>
+              <h3 className="text-xl font-semibold mb-2 text-silver-400">Quality Products</h3>
+              <p className="text-gray-400">Premium car accessories and gadgets for every need</p>
             </div>
             <div className="text-center">
               <div className="bg-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-silver-400">Warranty Protected</h3>
-              <p className="text-gray-400">All products backed by comprehensive warranty</p>
+              <h3 className="text-xl font-semibold mb-2 text-silver-400">Trusted Quality</h3>
+              <p className="text-gray-400">All products tested and backed by warranty</p>
             </div>
             <div className="text-center">
               <div className="bg-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Truck className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-2 text-silver-400">Fast Shipping</h3>
-              <p className="text-gray-400">Quick delivery to get you on the road faster</p>
+              <p className="text-gray-400">Quick delivery worldwide with tracking</p>
             </div>
           </div>
         </div>

@@ -29,14 +29,17 @@ export default function Header() {
             <Link href="/products" className="text-gray-300 hover:text-white transition-colors">
               Products
             </Link>
-            <Link href="/products?category=lighting" className="text-gray-300 hover:text-white transition-colors">
-              Lighting
+            <Link href="/products?category=maintenance" className="text-gray-300 hover:text-white transition-colors">
+              Maintenance
             </Link>
             <Link href="/products?category=electronics" className="text-gray-300 hover:text-white transition-colors">
               Electronics
             </Link>
-            <Link href="/products?category=detailing" className="text-gray-300 hover:text-white transition-colors">
-              Detailing
+            <Link href="/products?category=interior" className="text-gray-300 hover:text-white transition-colors">
+              Interior
+            </Link>
+            <Link href="/products?category=safety" className="text-gray-300 hover:text-white transition-colors">
+              Safety
             </Link>
           </nav>
 
@@ -87,14 +90,17 @@ export default function Header() {
               <Link href="/products" className="text-gray-300 hover:text-white transition-colors">
                 Products
               </Link>
-              <Link href="/products?category=lighting" className="text-gray-300 hover:text-white transition-colors">
-                Lighting
+              <Link href="/products?category=maintenance" className="text-gray-300 hover:text-white transition-colors">
+                Maintenance
               </Link>
               <Link href="/products?category=electronics" className="text-gray-300 hover:text-white transition-colors">
                 Electronics
               </Link>
-              <Link href="/products?category=detailing" className="text-gray-300 hover:text-white transition-colors">
-                Detailing
+              <Link href="/products?category=interior" className="text-gray-300 hover:text-white transition-colors">
+                Interior
+              </Link>
+              <Link href="/products?category=safety" className="text-gray-300 hover:text-white transition-colors">
+                Safety
               </Link>
               <div className="pt-4">
                 <Input
