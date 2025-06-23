@@ -26,6 +26,7 @@ export default function ProductDetailPage() {
   const product = getProductById(productId);
   const { addItem } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
 
   if (!product) {
@@ -45,15 +46,33 @@ export default function ProductDetailPage() {
     );
   }
 
-  const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addItem(product);
-    }
-  };
-
+  // Use images array if available, fallback to image array or placeholder
   const images = Array.isArray(product.image)
     ? product.image
     : [product.image || "/placeholder.svg"];
+
+  // If a color is selected and has an image, use that as the main image
+  const mainImage =
+    selectedColor !== null &&
+    product.colors &&
+    product.colors[selectedColor]?.image
+      ? product.colors[selectedColor].image
+      : images[selectedImage] || "/placeholder.svg";
+
+  const handleAddToCart = () => {
+    const color =
+      selectedColor !== null && product.colors
+        ? product.colors[selectedColor]
+        : null;
+
+    for (let i = 0; i < quantity; i++) {
+      addItem(
+        product,
+        color ? color.name : undefined,
+        color ? color.image : undefined
+      );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -65,7 +84,7 @@ export default function ProductDetailPage() {
           <div>
             <div className="mb-4">
               <Image
-                src={images[selectedImage] || "/placeholder.svg"}
+                src={mainImage}
                 alt={product.name}
                 width={600}
                 height={400}
@@ -76,9 +95,12 @@ export default function ProductDetailPage() {
               {images.map((image, index) => (
                 <button
                   key={index}
-                  onClick={() => setSelectedImage(index)}
+                  onClick={() => {
+                    setSelectedImage(index);
+                    setSelectedColor(null); // Deselect color if thumbnail is clicked
+                  }}
                   className={`border-2 rounded-lg overflow-hidden ${
-                    selectedImage === index
+                    selectedImage === index && selectedColor === null
                       ? "border-red-500"
                       : "border-gray-700"
                   }`}
@@ -88,13 +110,44 @@ export default function ProductDetailPage() {
                     alt={`${product.name} ${index + 1}`}
                     width={100}
                     height={80}
-                    className="w-20 h-16 object-cover"
+                    className="w-20 h-16 object-contain bg-black"
                   />
                 </button>
               ))}
             </div>
+            {/* Color Swatches */}
+            {product.colors && product.colors.length > 0 && (
+              <div className="flex gap-2 mt-4">
+                {product.colors.map((color, idx) => (
+                  <button
+                    key={color.name}
+                    type="button"
+                    onClick={() => {
+                      setSelectedColor(idx);
+                      // Optionally update selectedImage to match color image in images array
+                      const imgIdx = images.findIndex(
+                        (img) => img === color.image
+                      );
+                      if (imgIdx !== -1) setSelectedImage(imgIdx);
+                    }}
+                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition
+                      ${selectedColor === idx ? "border-red-500" : "border-gray-400"}`}
+                    style={{
+                      background:
+                        color.name.toLowerCase() === "black"
+                          ? "#222"
+                          : color.name.toLowerCase() === "blue"
+                            ? "#3490eb"
+                            : `url(${color.image}) center/cover no-repeat`,
+                    }}
+                    title={color.name}
+                  >
+                    {/* Optionally show a checkmark or ring if selected */}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-
           {/* Product Info */}
           <div>
             <div className="mb-4">
