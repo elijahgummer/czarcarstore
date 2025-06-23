@@ -29,7 +29,7 @@ const products: Product[] = [
       "/products/product-1/dimensions.png",
       "/products/product-1/blue.png",
       "/products/product-1/black.png",
-      "/products/product-1/descript",
+      "/products/product-1/descript.png",
     ],
     category: "maintenance",
     rating: 4.7,

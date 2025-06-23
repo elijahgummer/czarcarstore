@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { useState } from "react"
 import { ShoppingCart, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
@@ -17,8 +18,12 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart()
+  const [selectedImage, setSelectedImage] = useState(0)
 
-  // Update the handleAddToCart function
+  const images = Array.isArray(product.image)
+    ? product.image
+    : [product.image || "/placeholder.svg"]
+
   const handleAddToCart = () => {
     addItem(product)
     toast.success(`${product.name} added to cart!`, {
@@ -37,7 +42,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="relative overflow-hidden">
           <Link href={`/products/${product.id}`}>
             <Image
-              src={product.image || "/placeholder.svg"}
+              src={images[selectedImage] || "/placeholder.svg"}
               alt={product.name}
               width={300}
               height={200}
@@ -49,6 +54,28 @@ export default function ProductCard({ product }: ProductCardProps) {
             <Badge className="absolute top-2 right-2 bg-green-600 text-white">-{product.discount}%</Badge>
           )}
         </div>
+        {/* Thumbnails */}
+        {images.length > 1 && (
+          <div className="flex gap-2 px-4 py-2">
+            {images.map((img, idx) => (
+              <button
+                key={img}
+                type="button"
+                onClick={() => setSelectedImage(idx)}
+                className={`border ${selectedImage === idx ? "border-red-500" : "border-gray-600"} rounded`}
+                style={{ padding: 0 }}
+              >
+                <Image
+                  src={img}
+                  alt={`Thumbnail ${idx + 1}`}
+                  width={48}
+                  height={48}
+                  className="object-cover w-12 h-12 rounded"
+                />
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="p-4">
           <Link href={`/products/${product.id}`}>
