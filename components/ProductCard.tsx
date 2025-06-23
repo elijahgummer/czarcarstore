@@ -18,31 +18,24 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
-  const [selectedColor, setSelectedColor] = useState<number | null>(null);
+  const [selectedMode, setSelectedMode] = useState<number | null>(null);
 
-  // Use images array if available, fallback to image array or placeholder
-  const images = Array.isArray(product.image)
-    ? product.image
-    : [product.image || "/placeholder.svg"];
-
-  // If a color is selected and has an image, use that as the main image
+  // Use mode image if selected, otherwise fallback to first image
   const mainImage =
-    selectedColor !== null &&
-    product.colors &&
-    product.colors[selectedColor]?.image
-      ? product.colors[selectedColor].image
-      : images[0] || "/placeholder.svg";
+    selectedMode !== null && product.modes && product.modes[selectedMode]
+      ? product.modes[selectedMode].image
+      : product.image[0] || "/placeholder.svg";
 
   const handleAddToCart = () => {
-    const color =
-      selectedColor !== null && product.colors
-        ? product.colors[selectedColor]
+    const mode =
+      selectedMode !== null && product.modes
+        ? product.modes[selectedMode]
         : null;
 
     addItem(
       product,
-      color ? color.name : undefined,
-      color ? color.image : undefined
+      mode ? mode.name : undefined,
+      mode ? mode.image : undefined
     );
     toast.success(`${product.name} added to cart!`, {
       duration: 2000,
@@ -79,27 +72,26 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        {/* Color Swatches */}
-        {product.colors && product.colors.length > 0 && (
+        {/* Mode Selector */}
+        {product.modes && product.modes.length > 0 && (
           <div className="flex gap-2 px-4 py-2">
-            {product.colors.map((color, idx) => (
+            {product.modes.map((mode, idx) => (
               <button
-                key={color.name}
+                key={mode.name}
                 type="button"
-                onClick={() => setSelectedColor(idx)}
-                className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition
-                  ${selectedColor === idx ? "border-red-500" : "border-gray-400"}`}
-                style={{
-                  background:
-                    color.name.toLowerCase() === "black"
-                      ? "#222"
-                      : color.name.toLowerCase() === "blue"
-                      ? "#3490eb"
-                      : `url(${color.image}) center/cover no-repeat`
-                }}
-                title={color.name}
+                onClick={() => setSelectedMode(idx)}
+                className={`border-2 rounded-lg overflow-hidden p-0 ${
+                  selectedMode === idx ? "border-red-500" : "border-gray-400"
+                }`}
+                title={mode.name}
               >
-                {/* Optionally show a checkmark or ring if selected */}
+                <Image
+                  src={mode.image}
+                  alt={mode.name}
+                  width={40}
+                  height={40}
+                  className="object-contain w-10 h-10 bg-black"
+                />
               </button>
             ))}
           </div>

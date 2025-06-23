@@ -13,6 +13,8 @@ export interface Product {
   inStock: true;
   specifications?: Record<string, string>;
   colors?: { name: string; image: string }[];
+  modes?: { name: string; image: string }[];  // <-- add this line
+
 }
 
 const products: Product[] = [
@@ -135,6 +137,12 @@ const products: Product[] = [
       "/products/product-4/side-6.png",
       "/products/product-4/side-7.png",
       "/products/product-4/side-8.png",
+    ],
+    modes: [
+      { name: "Mode 1", image: "/products/product-4/mode-1.png" },
+      { name: "Mode 2", image: "/products/product-4/mode-2.png" },
+      { name: "Mode 3", image: "/products/product-4/mode-3.png" },
+      { name: "Mode 4", image: "/products/product-4/mode-4.png" },
     ],
     category: "electronics",
     rating: 4.5,

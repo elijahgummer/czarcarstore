@@ -27,6 +27,7 @@ export default function ProductDetailPage() {
   const { addItem } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState<number | null>(null);
+  const [selectedMode, setSelectedMode] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
 
   if (!product) {
@@ -51,15 +52,21 @@ export default function ProductDetailPage() {
     ? product.image
     : [product.image || "/placeholder.svg"];
 
-  // If a color is selected and has an image, use that as the main image
   const mainImage =
-    selectedColor !== null &&
-    product.colors &&
-    product.colors[selectedColor]?.image
-      ? product.colors[selectedColor].image
-      : images[selectedImage] || "/placeholder.svg";
+    selectedMode !== null && product.modes && product.modes[selectedMode]?.image
+      ? product.modes[selectedMode].image
+      : selectedColor !== null &&
+          product.colors &&
+          product.colors[selectedColor]?.image
+        ? product.colors[selectedColor].image
+        : images[selectedImage] || "/placeholder.svg";
 
+  // Add to cart logic: pass both mode and color if present
   const handleAddToCart = () => {
+    const mode =
+      selectedMode !== null && product.modes
+        ? product.modes[selectedMode]
+        : null;
     const color =
       selectedColor !== null && product.colors
         ? product.colors[selectedColor]
@@ -68,8 +75,9 @@ export default function ProductDetailPage() {
     for (let i = 0; i < quantity; i++) {
       addItem(
         product,
-        color ? color.name : undefined,
-        color ? color.image : undefined
+        // Prefer mode, then color, then undefined
+        mode ? mode.name : color ? color.name : undefined,
+        mode ? mode.image : color ? color.image : undefined
       );
     }
   };
@@ -115,6 +123,35 @@ export default function ProductDetailPage() {
                 </button>
               ))}
             </div>
+            {/* Mode Selector */}
+            {product.modes && product.modes.length > 0 && (
+              <div className="flex gap-2 mt-4">
+                {product.modes.map((mode, idx) => (
+                  <button
+                    key={mode.name}
+                    type="button"
+                    onClick={() => {
+                      setSelectedMode(idx);
+                      setSelectedColor(null); // Deselect color if mode is selected
+                    }}
+                    className={`border-2 rounded-lg overflow-hidden p-0 ${
+                      selectedMode === idx
+                        ? "border-red-500"
+                        : "border-gray-400"
+                    }`}
+                    title={mode.name}
+                  >
+                    <Image
+                      src={mode.image}
+                      alt={mode.name}
+                      width={60}
+                      height={60}
+                      className="object-contain w-14 h-14 bg-black"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
             {/* Color Swatches */}
             {product.colors && product.colors.length > 0 && (
               <div className="flex gap-2 mt-4">
@@ -124,6 +161,7 @@ export default function ProductDetailPage() {
                     type="button"
                     onClick={() => {
                       setSelectedColor(idx);
+                      setSelectedMode(null); // Deselect mode if color is selected
                       // Optionally update selectedImage to match color image in images array
                       const imgIdx = images.findIndex(
                         (img) => img === color.image
@@ -131,7 +169,7 @@ export default function ProductDetailPage() {
                       if (imgIdx !== -1) setSelectedImage(imgIdx);
                     }}
                     className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition
-                      ${selectedColor === idx ? "border-red-500" : "border-gray-400"}`}
+              ${selectedColor === idx ? "border-red-500" : "border-gray-400"}`}
                     style={{
                       background:
                         color.name.toLowerCase() === "black"
