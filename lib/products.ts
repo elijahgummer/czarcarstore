@@ -13,8 +13,7 @@ export interface Product {
   inStock: true;
   specifications?: Record<string, string>;
   colors?: { name: string; image: string }[];
-  modes?: { name: string; image: string }[];  // <-- add this line
-
+  modes?: { name: string; image: string }[]; // <-- add this line
 }
 
 const products: Product[] = [
@@ -204,13 +203,13 @@ const products: Product[] = [
     originalPrice: 25.95,
     discount: 31,
     colors: [
-    { name: "Gold", image: "/products/product-6/gold.png" },
-    { name: "Silver", image: "/products/product-6/silver.png" },
-    { name: "Red", image: "/products/product-6/red.png" },
-    { name: "Purple", image: "/products/product-6/purple.png" },
-    { name: "Blck", image: "/products/product-6/black.png" },
-    { name: "Blu", image: "/products/product-6/blue.png" },
-  ],
+      { name: "Gold", image: "/products/product-6/gold.png" },
+      { name: "Silver", image: "/products/product-6/silver.png" },
+      { name: "Red", image: "/products/product-6/red.png" },
+      { name: "Purple", image: "/products/product-6/purple.png" },
+      { name: "Blck", image: "/products/product-6/black.png" },
+      { name: "Blu", image: "/products/product-6/blue.png" },
+    ],
     image: [
       "/products/product-6/side.png",
       "/products/product-6/side-2.png",
@@ -333,10 +332,16 @@ const products: Product[] = [
       "/products/product-10/side.png",
       "/products/product-10/side-2.png",
       "/products/product-10/side-3.png",
-      "/products/product-10/black.png",
+      "/products/product-10/blck.png",
       "/products/product-10/pink.png",
       "/products/product-10/silver.png",
       "/products/product-10/gold.png",
+    ],
+    colors: [
+      { name: "Blck", image: "/products/product-10/blck.png" },
+      { name: "Gold", image: "/products/product-10/gold.png" },
+      { name: "Pink", image: "/products/product-10/pink.png" },
+      { name: "Silver", image: "/products/product-10/silver.png" },
     ],
     category: "electronics",
     rating: 4.3,
