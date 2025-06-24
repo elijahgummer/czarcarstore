@@ -70,7 +70,7 @@ export default function CartPage() {
                     >
                       <Image
                         src={
-                          item.selectedColorImage ||
+                          item.optionImage ||
                           (Array.isArray(item.product.image)
                             ? item.product.image[0]
                             : item.product.image) ||
@@ -88,13 +88,16 @@ export default function CartPage() {
                         <p className="text-gray-400 text-sm">
                           {item.product.category}
                         </p>
-                        {item.selectedColor && (
+                        {item.optionLabel && (
                           <span className="text-sm text-gray-400 block">
-                            Color: {item.selectedColor}
+                            {item.optionLabel}
                           </span>
                         )}
+                        <div className="text-gray-400 text-sm">
+                          Qty: {item.quantity}
+                        </div>
                         <p className="text-red-400 font-bold">
-                          ${item.product.price.toFixed(2)}
+                          ${(item.product.price * item.quantity).toFixed(2)}
                         </p>
                       </div>
 
