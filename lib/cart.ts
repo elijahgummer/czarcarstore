@@ -19,7 +19,9 @@ interface CartStore {
   addItem: (
     product: Product,
     selectedColor?: string,
-    selectedColorImage?: string
+  selectedColorImage?: string,
+  optionLabel?: string,
+  optionImage?: string
   ) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
@@ -35,14 +37,17 @@ export const useCart = create<CartStore>()(
       addItem: (
         product: Product,
         selectedColor?: string,
-        selectedColorImage?: string
+        selectedColorImage?: string,
+        optionLabel?: string,
+  optionImage?: string
       ) => {
         const items = get().items;
         // Find by product id and selectedColor (so different colors are separate items)
         const existingItem = items.find(
           (item) =>
             item.product.id === product.id &&
-            item.selectedColor === selectedColor
+            item.selectedColor === selectedColor &&
+            item.optionLabel === optionLabel
         );
 
         if (existingItem) {

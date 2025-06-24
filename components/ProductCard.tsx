@@ -19,24 +19,40 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
   const [selectedMode, setSelectedMode] = useState<number | null>(null);
+  const [selectedColor, setSelectedColor] = useState<number | null>(null);
+  const [selectedLength, setSelectedLength] = useState<number | null>(null);
+  const [selectedPlug, setSelectedPlug] = useState<number | null>(null);
 
-  // Use mode image if selected, otherwise fallback to first image
+  // Use the most specific image available
   const mainImage =
-    selectedMode !== null && product.modes && product.modes[selectedMode]
-      ? product.modes[selectedMode].image
-      : product.image[0] || "/placeholder.svg";
+    (selectedMode !== null && product.modes && product.modes[selectedMode]?.image) ||
+    (selectedColor !== null && product.colors && product.colors[selectedColor]?.image) ||
+    product.image[0] ||
+    "/placeholder.svg";
 
   const handleAddToCart = () => {
-    const mode =
-      selectedMode !== null && product.modes
-        ? product.modes[selectedMode]
-        : null;
+    const mode = selectedMode !== null && product.modes ? product.modes[selectedMode] : null;
+    const color = selectedColor !== null && product.colors ? product.colors[selectedColor] : null;
+    const length = selectedLength !== null && product.lengths ? product.lengths[selectedLength] : null;
+    const plug = selectedPlug !== null && product.plugTypes ? product.plugTypes[selectedPlug] : null;
 
-    addItem(
-      product,
-      mode ? mode.name : undefined,
-      mode ? mode.image : undefined
-    );
+    // Build a label with all selected options
+    const optionLabel = [
+      mode?.name,
+      color?.name,
+      length,
+      plug
+    ].filter(Boolean).join(" / ");
+
+    // Pick the best image for the selected options
+    const optionImage =
+      mode?.image ||
+      color?.image ||
+      product.image[0] ||
+      "/placeholder.svg";
+
+    addItem(product, optionLabel, optionImage);
+
     toast.success(`${product.name} added to cart!`, {
       duration: 2000,
       style: {
@@ -79,7 +95,10 @@ export default function ProductCard({ product }: ProductCardProps) {
               <button
                 key={mode.name}
                 type="button"
-                onClick={() => setSelectedMode(idx)}
+                onClick={() => {
+                  setSelectedMode(idx);
+                  setSelectedColor(null); // Deselect color if mode is selected
+                }}
                 className={`border-2 rounded-lg overflow-hidden p-0 ${
                   selectedMode === idx ? "border-red-500" : "border-gray-400"
                 }`}
@@ -92,6 +111,65 @@ export default function ProductCard({ product }: ProductCardProps) {
                   height={40}
                   className="object-contain w-10 h-10 bg-black"
                 />
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Color Selector */}
+        {product.colors && product.colors.length > 0 && (
+          <div className="flex gap-2 px-4 py-2">
+            {product.colors.map((color, idx) => (
+              <button
+                key={color.name}
+                type="button"
+                onClick={() => {
+                  setSelectedColor(idx);
+                  setSelectedMode(null); // Deselect mode if color is selected
+                }}
+                className={`border-2 rounded-full overflow-hidden p-0 w-8 h-8 ${
+                  selectedColor === idx ? "border-red-500" : "border-gray-400"
+                }`}
+                title={color.name}
+                style={{
+                  background: `url(${color.image}) center/cover no-repeat`,
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Length Selector */}
+        {product.lengths && product.lengths.length > 0 && (
+          <div className="flex gap-2 px-4 py-2">
+            {product.lengths.map((length, idx) => (
+              <button
+                key={length}
+                type="button"
+                onClick={() => setSelectedLength(idx)}
+                className={`px-3 py-1 rounded border-2 text-xs font-semibold ${
+                  selectedLength === idx ? "border-red-500 bg-gray-700" : "border-gray-400"
+                }`}
+              >
+                {length}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Plug Type Selector */}
+        {product.plugTypes && product.plugTypes.length > 0 && (
+          <div className="flex gap-2 px-4 py-2 flex-wrap">
+            {product.plugTypes.map((plug, idx) => (
+              <button
+                key={plug}
+                type="button"
+                onClick={() => setSelectedPlug(idx)}
+                className={`px-3 py-1 rounded border-2 text-xs font-semibold ${
+                  selectedPlug === idx ? "border-red-500 bg-gray-700" : "border-gray-400"
+                }`}
+              >
+                {plug}
               </button>
             ))}
           </div>
