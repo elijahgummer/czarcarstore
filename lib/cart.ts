@@ -5,11 +5,11 @@ import { persist } from "zustand/middleware";
 import type { Product } from "./products";
 
 export interface CartItem {
-  id: string
-  product: Product
-  quantity: number
-  selectedColor?: string
-  selectedColorImage?: string
+  id: string;
+  product: Product;
+  quantity: number;
+  selectedColor?: string;
+  selectedColorImage?: string;
   optionLabel?: string;
   optionImage?: string;
 }
@@ -19,9 +19,9 @@ interface CartStore {
   addItem: (
     product: Product,
     selectedColor?: string,
-  selectedColorImage?: string,
-  optionLabel?: string,
-  optionImage?: string
+    selectedColorImage?: string,
+    optionLabel?: string,
+    optionImage?: string
   ) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
@@ -39,22 +39,19 @@ export const useCart = create<CartStore>()(
         selectedColor?: string,
         selectedColorImage?: string,
         optionLabel?: string,
-  optionImage?: string
+        optionImage?: string
       ) => {
         const items = get().items;
-        // Find by product id and selectedColor (so different colors are separate items)
+        // Find by product id and optionLabel (so different options are separate items)
         const existingItem = items.find(
           (item) =>
-            item.product.id === product.id &&
-            item.selectedColor === selectedColor &&
-            item.optionLabel === optionLabel
+            item.product.id === product.id && item.optionLabel === optionLabel
         );
 
         if (existingItem) {
           set({
             items: items.map((item) =>
-              item.product.id === product.id &&
-              item.selectedColor === selectedColor
+              item.product.id === product.id && item.optionLabel === optionLabel
                 ? { ...item, quantity: item.quantity + 1 }
                 : item
             ),
@@ -64,11 +61,11 @@ export const useCart = create<CartStore>()(
             items: [
               ...items,
               {
-                id: `${product.id}-${selectedColor || "default"}-${Date.now()}`,
+                id: `${product.id}-${optionLabel || "default"}-${Date.now()}`,
                 product,
                 quantity: 1,
-                selectedColor,
-                selectedColorImage,
+                optionLabel,
+                optionImage,
               },
             ],
           });

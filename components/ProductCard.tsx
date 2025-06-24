@@ -51,7 +51,13 @@ export default function ProductCard({ product }: ProductCardProps) {
       product.image[0] ||
       "/placeholder.svg";
 
-    addItem(product, optionLabel, optionImage);
+    addItem(
+      product,
+      undefined, // selectedColor
+      undefined, // selectedColorImage
+      optionLabel,
+      optionImage
+    );
 
     toast.success(`${product.name} added to cart!`, {
       duration: 2000,

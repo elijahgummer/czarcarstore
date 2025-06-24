@@ -501,10 +501,7 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                 {/* Order Items */}
                 <div className="space-y-3 max-h-60 overflow-y-auto">
                   {items.map((item) => (
-                    <div
-                      key={item.product.id + (item.optionLabel || "")}
-                      className="flex items-center mb-4"
-                    >
+                    <div key={item.id} className="flex items-center mb-4">
                       <Image
                         src={
                           item.optionImage ||
