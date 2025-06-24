@@ -28,6 +28,7 @@ export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState<number | null>(null);
   const [selectedMode, setSelectedMode] = useState<number | null>(null);
+  const [selectedModel, setSelectedModel] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
 
   if (!product) {
@@ -53,16 +54,25 @@ export default function ProductDetailPage() {
     : [product.image || "/placeholder.svg"];
 
   const mainImage =
-    selectedMode !== null && product.modes && product.modes[selectedMode]?.image
-      ? product.modes[selectedMode].image
-      : selectedColor !== null &&
-          product.colors &&
-          product.colors[selectedColor]?.image
-        ? product.colors[selectedColor].image
-        : images[selectedImage] || "/placeholder.svg";
+    selectedModel !== null &&
+    product.models &&
+    product.models[selectedModel]?.image
+      ? product.models[selectedModel].image
+      : selectedMode !== null &&
+          product.modes &&
+          product.modes[selectedMode]?.image
+        ? product.modes[selectedMode].image
+        : selectedColor !== null &&
+            product.colors &&
+            product.colors[selectedColor]?.image
+          ? product.colors[selectedColor].image
+          : images[selectedImage] || "/placeholder.svg";
 
-  // Add to cart logic: pass both mode and color if present
   const handleAddToCart = () => {
+    const model =
+      selectedModel !== null && product.models
+        ? product.models[selectedModel]
+        : null;
     const mode =
       selectedMode !== null && product.modes
         ? product.modes[selectedMode]
@@ -75,9 +85,15 @@ export default function ProductDetailPage() {
     for (let i = 0; i < quantity; i++) {
       addItem(
         product,
-        // Prefer mode, then color, then undefined
-        mode ? mode.name : color ? color.name : undefined,
-        mode ? mode.image : color ? color.image : undefined
+        // Prefer model, then mode, then color, then undefined
+        model ? model.name : mode ? mode.name : color ? color.name : undefined,
+        model
+          ? model.image
+          : mode
+            ? mode.image
+            : color
+              ? color.image
+              : undefined
       );
     }
   };
@@ -123,11 +139,13 @@ export default function ProductDetailPage() {
                 </button>
               ))}
             </div>
-            
+
             {/* Mode Selector */}
             {product.modes && product.modes.length > 0 && (
               <>
-                <div className="mt-6 mb-2 font-semibold text-gray-200">Select Mode</div>
+                <div className="mt-6 mb-2 font-semibold text-gray-200">
+                  Select Mode
+                </div>
                 <div className="flex gap-2 mt-4">
                   {product.modes.map((mode, idx) => (
                     <button
@@ -156,10 +174,52 @@ export default function ProductDetailPage() {
                 </div>
               </>
             )}
+            {/* Model Selector */}
+            {product.models && product.models.length > 0 && (
+              <>
+                <div className="mt-6 mb-2 font-semibold text-gray-200">
+                  Select Model
+                </div>
+                <div className="flex gap-2">
+                  {product.models.map((model, idx) => (
+                    <button
+                      key={model.name}
+                      type="button"
+                      onClick={() => {
+                        setSelectedModel(idx);
+                        setSelectedColor?.(null);
+                        setSelectedMode?.(null);
+                        // Optionally update selectedImage to match model image in images array
+                        const imgIdx = images.findIndex(
+                          (img) => img === model.image
+                        );
+                        if (imgIdx !== -1) setSelectedImage(imgIdx);
+                      }}
+                      className={`border-2 rounded-lg overflow-hidden p-0 ${
+                        selectedModel === idx
+                          ? "border-red-500"
+                          : "border-gray-400"
+                      }`}
+                      title={model.name}
+                    >
+                      <Image
+                        src={model.image}
+                        alt={model.name}
+                        width={60}
+                        height={60}
+                        className="object-contain w-14 h-14 bg-black"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
             {/* Color Swatches */}
             {product.colors && product.colors.length > 0 && (
               <>
-                <div className="mt-6 mb-2 font-semibold text-gray-200">Select Color</div>
+                <div className="mt-6 mb-2 font-semibold text-gray-200">
+                  Select Color
+                </div>
                 <div className="flex gap-2 mt-4">
                   {product.colors.map((color, idx) => (
                     <button

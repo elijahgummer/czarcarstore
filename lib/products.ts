@@ -14,6 +14,7 @@ export interface Product {
   specifications?: Record<string, string>;
   colors?: { name: string; image: string }[];
   modes?: { name: string; image: string }[]; // <-- add this line
+  models?: { name: string; image: string }[];
 }
 
 const products: Product[] = [
@@ -74,6 +75,17 @@ const products: Product[] = [
       "/products/product-2/supra-car.png",
       "/products/product-2/porsche-car.png",
       "/products/product-2/mercedes.png",
+    ],
+    models: [
+      { name: "AE86", image: "/products/product-2/ae-car.png" },
+      { name: "Bugatti", image: "/products/product-2/bugatti-car.png" },
+      { name: "Ferrari", image: "/products/product-2/ferrari-car.png" },
+      { name: "Lamborghini", image: "/products/product-2/lambo-car.png" },
+      { name: "Nissan", image: "/products/product-2/nissan-car.png" },
+      { name: "GTR", image: "/products/product-2/gtr-car.png" },
+      { name: "Supra", image: "/products/product-2/supra-car.png" },
+      { name: "Porsche", image: "/products/product-2/porsche-car.png" },
+      { name: "Mercedes", image: "/products/product-2/mercedes.png" },
     ],
     category: "interior",
     rating: 4.4,
