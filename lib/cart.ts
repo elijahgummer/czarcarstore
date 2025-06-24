@@ -10,6 +10,8 @@ export interface CartItem {
   quantity: number
   selectedColor?: string
   selectedColorImage?: string
+  optionLabel?: string;
+  optionImage?: string;
 }
 
 interface CartStore {
