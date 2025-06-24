@@ -29,6 +29,8 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState<number | null>(null);
   const [selectedMode, setSelectedMode] = useState<number | null>(null);
   const [selectedModel, setSelectedModel] = useState<number | null>(null);
+  const [selectedLength, setSelectedLength] = useState<number | null>(null);
+  const [selectedPlug, setSelectedPlug] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
 
   if (!product) {
@@ -69,34 +71,54 @@ export default function ProductDetailPage() {
           : images[selectedImage] || "/placeholder.svg";
 
   const handleAddToCart = () => {
-    const model =
-      selectedModel !== null && product.models
-        ? product.models[selectedModel]
-        : null;
-    const mode =
-      selectedMode !== null && product.modes
-        ? product.modes[selectedMode]
-        : null;
-    const color =
-      selectedColor !== null && product.colors
-        ? product.colors[selectedColor]
-        : null;
+  const model =
+    selectedModel !== null && product.models
+      ? product.models[selectedModel]
+      : null;
+  const mode =
+    selectedMode !== null && product.modes
+      ? product.modes[selectedMode]
+      : null;
+  const color =
+    selectedColor !== null && product.colors
+      ? product.colors[selectedColor]
+      : null;
+  const length =
+    selectedLength !== null && product.lengths
+      ? product.lengths[selectedLength]
+      : null;
+  const plug =
+    selectedPlug !== null && product.plugTypes
+      ? product.plugTypes[selectedPlug]
+      : null;
 
-    for (let i = 0; i < quantity; i++) {
-      addItem(
-        product,
-        // Prefer model, then mode, then color, then undefined
-        model ? model.name : mode ? mode.name : color ? color.name : undefined,
-        model
-          ? model.image
-          : mode
-            ? mode.image
-            : color
-              ? color.image
-              : undefined
-      );
-    }
-  };
+  // Build a string describing the selected options
+  const optionLabel = [
+    model?.name,
+    mode?.name,
+    color?.name,
+    length,
+    plug,
+  ]
+    .filter(Boolean)
+    .join(" / ");
+
+  // Prefer image in this order: model > mode > color > default
+  const optionImage =
+    model?.image ||
+    mode?.image ||
+    color?.image ||
+    product.image?.[0] ||
+    "/placeholder.svg";
+
+  for (let i = 0; i < quantity; i++) {
+    addItem(
+      product,
+      optionLabel.length > 0 ? optionLabel : undefined,
+      optionImage
+    );
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -169,6 +191,56 @@ export default function ProductDetailPage() {
                         height={60}
                         className="object-contain w-14 h-14 bg-black"
                       />
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            
+            {/* Length Selector */}
+            {product.lengths && (
+              <>
+                <div className="mt-6 mb-2 font-semibold text-gray-200">
+                  Select Length
+                </div>
+                <div className="flex gap-2">
+                  {product.lengths.map((length, idx) => (
+                    <button
+                      key={length}
+                      type="button"
+                      onClick={() => setSelectedLength(idx)}
+                      className={`px-4 py-2 rounded border-2 ${
+                        selectedLength === idx
+                          ? "border-red-500 bg-gray-700"
+                          : "border-gray-400"
+                      }`}
+                    >
+                      {length}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Plug Type Selector */}
+            {product.plugTypes && (
+              <>
+                <div className="mt-6 mb-2 font-semibold text-gray-200">
+                  Select Plug Type
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {product.plugTypes.map((plug, idx) => (
+                    <button
+                      key={plug}
+                      type="button"
+                      onClick={() => setSelectedPlug(idx)}
+                      className={`px-4 py-2 rounded border-2 ${
+                        selectedPlug === idx
+                          ? "border-red-500 bg-gray-700"
+                          : "border-gray-400"
+                      }`}
+                    >
+                      {plug}
                     </button>
                   ))}
                 </div>

@@ -13,6 +13,8 @@ export interface Product {
   inStock: true;
   specifications?: Record<string, string>;
   colors?: { name: string; image: string }[];
+  lengths?: string[];
+  plugTypes?: string[];
   modes?: { name: string; image: string }[]; // <-- add this line
   models?: { name: string; image: string }[];
 }
@@ -169,43 +171,61 @@ const products: Product[] = [
     },
   },
   {
-    id: "5",
-    name: "Car Interior LED Ambient Light Strips 1M/3M/5M Dashboard Console",
-    description:
-      "Add a cool glow to your car's interior with these flexible, energy-saving EL light strips. Available in 1M/3M/5M lengths. Multiple colors: White, Red, Blue, Green, Pink, Purple, Ice Blue, Yellow, Orange. USB or cigarette lighter power options. Wire diameter 2.3mm, DC 12V, temperature range -40°C to 80°C. Lifespan 10,000+ hours.",
-    price: 14.95,
-    originalPrice: 24.95,
-    discount: 40,
-    image: [
-      "/products/product-5/side.png",
-      "/products/product-5/side-2.png",
-      "/products/product-5/side-3.png",
-      "/products/product-5/side-4.png",
-      "/products/product-5/side-5.png",
-      "/products/product-5/side-6.png",
-      "/products/product-5/side-7.png",
-      "/products/product-5/side-8.png",
-      "/products/product-5/side-9.png",
-      "/products/product-5/side-10.png",
-      "/products/product-5/side-11.png",
-      "/products/product-5/side-12.png",
-      "/products/product-5/side-13.png",
-      "/products/product-5/side-14.png",
-    ],
-    category: "interior",
-    rating: 4.3,
-    reviews: 1156,
-    featured: false,
-    inStock: true,
-    specifications: {
-      Lengths: "1M / 3M / 5M options",
-      Colors: "9 colors available",
-      "Wire Diameter": "2.3mm",
-      Voltage: "DC 12V",
-      "Temperature Range": "-40°C to 80°C",
-      Lifespan: "10,000+ hours",
-    },
+  id: "5",
+  name: "Car Interior LED Ambient Light Strips 1M/3M/5M Dashboard Console",
+  description:
+    "Add a cool glow to your car's interior with these flexible, energy-saving EL light strips. Available in 1M/3M/5M lengths. Multiple colors: White, Red, Blue, Green, Pink, Purple, Ice Blue, Yellow, Orange. USB or cigarette lighter power options. Wire diameter 2.3mm, DC 12V, temperature range -40°C to 80°C. Lifespan 10,000+ hours.",
+  price: 14.95,
+  originalPrice: 24.95,
+  discount: 40,
+  image: [
+    "/products/product-5/side.png",
+    "/products/product-5/side-2.png",
+    "/products/product-5/side-3.png",
+    "/products/product-5/blue.png",
+    "/products/product-5/side-5.png",
+    "/products/product-5/side-6.png",
+    "/products/product-5/fluro-yellow.png",
+    "/products/product-5/green.png",
+    "/products/product-5/ice-blue.png",
+    "/products/product-5/orange.png",
+    "/products/product-5/purple.png",
+    "/products/product-5/pink.png",
+    "/products/product-5/yellow.png",
+    "/products/product-5/white.png",
+  ],
+  colors: [
+    { name: "Blu", image: "/products/product-5/blue.png" },
+    { name: "Fluro Yellow", image: "/products/product-5/fluro-yellow.png" },
+    { name: "Green", image: "/products/product-5/green.png" },
+    { name: "Ice Blue", image: "/products/product-5/ice-blue.png" },
+    { name: "Orange", image: "/products/product-5/orange.png" },
+    { name: "Purple", image: "/products/product-5/purple.png" },
+    { name: "Pink", image: "/products/product-5/pink.png" },
+    { name: "Yellow", image: "/products/product-5/yellow.png" },
+    { name: "White", image: "/products/product-5/white.png" },
+  ],
+  lengths: ["1M", "2M", "3M", "4M", "5M"],
+  plugTypes: [
+    "USB Switch Plug",
+    "USB Plug",
+    "Cigar lighter Plug",
+    "Wire control Plug"
+  ],
+  category: "interior",
+  rating: 4.3,
+  reviews: 1156,
+  featured: false,
+  inStock: true,
+  specifications: {
+    Lengths: "1M / 3M / 5M options",
+    Colors: "9 colors available",
+    "Wire Diameter": "2.3mm",
+    Voltage: "DC 12V",
+    "Temperature Range": "-40°C to 80°C",
+    Lifespan: "10,000+ hours",
   },
+},
   {
     id: "6",
     name: "10pc Car Perfume Balms Fruit Scent Air Freshener Vent Accessories",
