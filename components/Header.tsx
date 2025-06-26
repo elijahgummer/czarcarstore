@@ -47,30 +47,7 @@ export default function Header() {
             >
               Products
             </Link>
-            <Link
-              href="/products?category=maintenance"
-              className="text-gray-300 hover:text-white transition-colors"
-            >
-              Maintenance
-            </Link>
-            <Link
-              href="/products?category=electronics"
-              className="text-gray-300 hover:text-white transition-colors"
-            >
-              Electronics
-            </Link>
-            <Link
-              href="/products?category=interior"
-              className="text-gray-300 hover:text-white transition-colors"
-            >
-              Interior
-            </Link>
-            <Link
-              href="/products?category=safety"
-              className="text-gray-300 hover:text-white transition-colors"
-            >
-              Safety
-            </Link>
+            
           </nav>
 
           {/* Search Bar */}
