@@ -74,7 +74,7 @@ export default function AboutPage() {
                 <CheckCircle className="h-6 w-6 text-green-400 mr-3 mt-1 flex-shrink-0" />
                 <div>
                   <h4 className="font-semibold text-white">Fast Shipping</h4>
-                  <p className="text-gray-400 text-sm">Free worldwide shipping on orders over $50</p>
+                  <p className="text-gray-400 text-sm">Free worldwide shipping on orders</p>
                 </div>
               </div>
               <div className="flex items-start">
@@ -88,7 +88,7 @@ export default function AboutPage() {
                 <CheckCircle className="h-6 w-6 text-green-400 mr-3 mt-1 flex-shrink-0" />
                 <div>
                   <h4 className="font-semibold text-white">Satisfaction Guarantee</h4>
-                  <p className="text-gray-400 text-sm">30-day money-back guarantee</p>
+                  <p className="text-gray-400 text-sm">Product approval </p>
                 </div>
               </div>
             </div>
