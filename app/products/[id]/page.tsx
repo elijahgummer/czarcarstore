@@ -20,6 +20,33 @@ import {
 } from "lucide-react";
 import { useCart } from "@/lib/cart";
 
+const mockReviews = [
+  {
+    name: "Sarah L.",
+    rating: 5,
+    date: "3 days ago",
+    text: "Absolutely love this product! The quality is top-notch and it arrived quickly. Highly recommend.",
+  },
+  {
+    name: "Mike D.",
+    rating: 4,
+    date: "1 week ago",
+    text: "Works as described and looks great in my car. Would buy again, but shipping took a bit longer than expected.",
+  },
+  {
+    name: "Priya S.",
+    rating: 5,
+    date: "2 weeks ago",
+    text: "Easy to install and makes a noticeable difference. Customer support was also very helpful.",
+  },
+  {
+    name: "James K.",
+    rating: 3,
+    date: "1 month ago",
+    text: "Product is decent for the price. Packaging could be improved.",
+  },
+];
+
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
@@ -71,54 +98,48 @@ export default function ProductDetailPage() {
           : images[selectedImage] || "/placeholder.svg";
 
   const handleAddToCart = () => {
-  const model =
-    selectedModel !== null && product.models
-      ? product.models[selectedModel]
-      : null;
-  const mode =
-    selectedMode !== null && product.modes
-      ? product.modes[selectedMode]
-      : null;
-  const color =
-    selectedColor !== null && product.colors
-      ? product.colors[selectedColor]
-      : null;
-  const length =
-    selectedLength !== null && product.lengths
-      ? product.lengths[selectedLength]
-      : null;
-  const plug =
-    selectedPlug !== null && product.plugTypes
-      ? product.plugTypes[selectedPlug]
-      : null;
+    const model =
+      selectedModel !== null && product.models
+        ? product.models[selectedModel]
+        : null;
+    const mode =
+      selectedMode !== null && product.modes
+        ? product.modes[selectedMode]
+        : null;
+    const color =
+      selectedColor !== null && product.colors
+        ? product.colors[selectedColor]
+        : null;
+    const length =
+      selectedLength !== null && product.lengths
+        ? product.lengths[selectedLength]
+        : null;
+    const plug =
+      selectedPlug !== null && product.plugTypes
+        ? product.plugTypes[selectedPlug]
+        : null;
 
-  // Build a string describing the selected options
-  const optionLabel = [
-    model?.name,
-    mode?.name,
-    color?.name,
-    length,
-    plug,
-  ]
-    .filter(Boolean)
-    .join(" / ");
+    // Build a string describing the selected options
+    const optionLabel = [model?.name, mode?.name, color?.name, length, plug]
+      .filter(Boolean)
+      .join(" / ");
 
-  // Prefer image in this order: model > mode > color > default
-  const optionImage =
-    model?.image ||
-    mode?.image ||
-    color?.image ||
-    product.image?.[0] ||
-    "/placeholder.svg";
+    // Prefer image in this order: model > mode > color > default
+    const optionImage =
+      model?.image ||
+      mode?.image ||
+      color?.image ||
+      product.image?.[0] ||
+      "/placeholder.svg";
 
-  for (let i = 0; i < quantity; i++) {
-    addItem(
-      product,
-      optionLabel.length > 0 ? optionLabel : undefined,
-      optionImage
-    );
-  }
-};
+    for (let i = 0; i < quantity; i++) {
+      addItem(
+        product,
+        optionLabel.length > 0 ? optionLabel : undefined,
+        optionImage
+      );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -196,7 +217,7 @@ export default function ProductDetailPage() {
                 </div>
               </>
             )}
-            
+
             {/* Length Selector */}
             {product.lengths && (
               <>
@@ -497,32 +518,29 @@ export default function ProductDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    {[1, 2, 3].map((review) => (
-                      <div
-                        key={review}
-                        className="border-b border-gray-700 pb-4"
-                      >
+                    {mockReviews.map((review, idx) => (
+                      <div key={idx} className="border-b border-gray-700 pb-4">
                         <div className="flex items-center mb-2">
                           <div className="flex items-center">
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className="h-4 w-4 text-yellow-400 fill-current"
+                                className={`h-4 w-4 ${
+                                  i < review.rating
+                                    ? "text-yellow-400 fill-current"
+                                    : "text-gray-600"
+                                }`}
                               />
                             ))}
                           </div>
                           <span className="text-gray-300 ml-2 font-semibold">
-                            Customer {review}
+                            {review.name}
                           </span>
                           <span className="text-gray-500 ml-2">
-                            2 weeks ago
+                            {review.date}
                           </span>
                         </div>
-                        <p className="text-gray-300">
-                          Great product! Easy to install and works perfectly.
-                          The quality is excellent and it looks amazing on my
-                          car.
-                        </p>
+                        <p className="text-gray-300">{review.text}</p>
                       </div>
                     ))}
                   </div>
