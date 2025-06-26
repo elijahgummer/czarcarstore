@@ -59,7 +59,7 @@ export default function HomePage() {
             <div>
               <div className="flex items-center justify-center mb-2">
                 <Star className="h-6 w-6 text-yellow-400 mr-2" />
-                <span className="text-2xl font-bold text-yellow-400">4.6★</span>
+                <span className="text-2xl font-bold text-yellow-400">4.6</span>
               </div>
               <div className="text-gray-300 text-sm">Average Rating</div>
             </div>
