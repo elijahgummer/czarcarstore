@@ -23,7 +23,7 @@ export default function AboutPage() {
         {/* Stats Section */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
           <div className="text-center">
-            <div className="text-3xl font-bold text-red-400 mb-2">10,000+</div>
+            <div className="text-3xl font-bold text-red-400 mb-2">1000+</div>
             <div className="text-gray-400">Happy Customers</div>
           </div>
           <div className="text-center">
@@ -31,7 +31,7 @@ export default function AboutPage() {
             <div className="text-gray-400">Average Rating</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-green-400 mb-2">2 Years</div>
+            <div className="text-3xl font-bold text-green-400 mb-2">1 days</div>
             <div className="text-gray-400">Warranty</div>
           </div>
           <div className="text-center">
