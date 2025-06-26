@@ -3,7 +3,7 @@ import Stripe from "stripe"
 import { sendOrderConfirmationEmail } from "@/lib/email"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-06-20",
+  apiVersion: "2025-05-28.basil",
 })
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
