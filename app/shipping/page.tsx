@@ -22,7 +22,7 @@ export default function ShippingPage() {
         {/* Free Shipping Banner */}
         <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-lg p-6 mb-12 text-center">
           <h2 className="text-2xl font-bold text-white mb-2">🚚 FREE Worldwide Shipping</h2>
-          <p className="text-green-100">On all orders over $50 • No minimum for digital products</p>
+          <p className="text-green-100">On all orders over • No minimum for digital products</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -37,32 +37,12 @@ export default function ShippingPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="border-b border-gray-700 pb-4">
-                  <h3 className="font-semibold text-white mb-2">Standard Shipping (FREE over $50)</h3>
+                  <h3 className="font-semibold text-white mb-2">Standard Shipping FREE</h3>
                   <div className="text-gray-400 space-y-1">
                     <p>• Delivery: 5-7 business days</p>
-                    <p>• Cost: $4.99 (FREE over $50)</p>
+                    <p>• Cost: FREE</p>
                     <p>• Tracking included</p>
                     <p>• Available worldwide</p>
-                  </div>
-                </div>
-
-                <div className="border-b border-gray-700 pb-4">
-                  <h3 className="font-semibold text-white mb-2">Express Shipping</h3>
-                  <div className="text-gray-400 space-y-1">
-                    <p>• Delivery: 2-3 business days</p>
-                    <p>• Cost: $12.99</p>
-                    <p>• Priority handling</p>
-                    <p>• Real-time tracking</p>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-white mb-2">Overnight Shipping</h3>
-                  <div className="text-gray-400 space-y-1">
-                    <p>• Delivery: Next business day</p>
-                    <p>• Cost: $24.99</p>
-                    <p>• Available in US only</p>
-                    <p>• Order by 2PM EST</p>
                   </div>
                 </div>
               </CardContent>
