@@ -27,6 +27,31 @@ export interface OrderEmailData {
   paymentIntentId: string
 }
 
+export async function sendAdminOrderEmail(order: any) {
+  const itemsList = order.items
+    .map(
+      (item: any) =>
+        `• ${item.product.name} x${item.quantity} (${item.optionLabel || "No options"})`
+    )
+    .join("<br>");
+
+  const html = `
+    <h2>New Order Received</h2>
+    <p><strong>Name:</strong> ${order.customerName}</p>
+    <p><strong>Email:</strong> ${order.customerEmail}</p>
+    <p><strong>Address:</strong> ${order.shippingAddress}</p>
+    <p><strong>Items:</strong><br>${itemsList}</p>
+    <p><strong>Total:</strong> $${order.total}</p>
+  `;
+
+  await resend.emails.send({
+    from: "czarcarphotos@gmail.com",
+    to: "elijahgummer5@gmail.com",
+    subject: "New Order Received",
+    html,
+  });
+}
+
 export async function sendOrderConfirmationEmail(orderData: OrderEmailData) {
   try {
     console.log("Attempting to send email to:", orderData.customerEmail)
@@ -42,7 +67,7 @@ export async function sendOrderConfirmationEmail(orderData: OrderEmailData) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: "CzarCar <onboarding@resend.dev>", // Use Resend's default domain for testing
+      from: "CzarCar <czarcarphotos@gmail.com>", // Use Resend's default domain for testing
       to: [orderData.customerEmail],
       subject: `Order Confirmation - ${orderData.orderNumber}`,
       html: generateOrderConfirmationHTML(orderData),
@@ -64,7 +89,7 @@ export async function sendOrderConfirmationEmail(orderData: OrderEmailData) {
 export async function sendShippingNotificationEmail(orderData: OrderEmailData & { trackingNumber?: string }) {
   try {
     const { data, error } = await resend.emails.send({
-      from: "CzarCar <shipping@czarcar.com>",
+      from: "CzarCar <czarcarphotos@gmail.com>",
       to: [orderData.customerEmail],
       subject: `Your Order is Shipping - ${orderData.orderNumber}`,
       html: generateShippingNotificationHTML(orderData),
@@ -199,7 +224,7 @@ function generateOrderConfirmationHTML(orderData: OrderEmailData): string {
         <p style="color: #6b7280; margin: 0 0 10px 0;">Thank you for choosing CzarCar!</p>
         <p style="color: #9ca3af; font-size: 14px; margin: 0;">
           If you have any questions, contact us at 
-          <a href="mailto:support@czarcar.com" style="color: #ef4444; text-decoration: none;">support@czarcar.com</a>
+          <a href="mailto:czarcarphotos@gmail.com" style="color: #ef4444; text-decoration: none;">czarcarphotos@gmail.com</a>
         </p>
       </div>
 
@@ -286,7 +311,7 @@ function generateShippingNotificationHTML(orderData: OrderEmailData & { tracking
         <p style="color: #6b7280; margin: 0 0 10px 0;">Thank you for your business!</p>
         <p style="color: #9ca3af; font-size: 14px; margin: 0;">
           Questions about your shipment? Contact us at 
-          <a href="mailto:support@czarcar.com" style="color: #ef4444; text-decoration: none;">support@czarcar.com</a>
+          <a href="mailto:czarcarphotos@gmail.com" style="color: #ef4444; text-decoration: none;">czarcarphotos@gmail.com</a>
         </p>
       </div>
 
