@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
-import { sendOrderConfirmationEmail } from "@/lib/email"
+import { sendOrderConfirmationEmail, sendOrderNotificationToOwner, sendBackupOwnerNotification } from "@/lib/email"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-05-28.basil",
@@ -45,36 +45,50 @@ export async function POST(request: NextRequest) {
           orderItems = []
         }
 
-        // Send order confirmation email
+        // Prepare order data for emails
+        const orderEmailData = {
+          customerEmail: paymentIntent.receipt_email || "customer@example.com",
+          customerName: metadata.customer_name || paymentIntent.shipping?.name || "Customer",
+          orderNumber: `CZ-${Date.now().toString().slice(-6)}`,
+          orderTotal: paymentIntent.amount / 100, // Convert from cents
+          orderItems: orderItems,
+          shippingAddress: {
+            name: paymentIntent.shipping?.name || metadata.customer_name || "Customer",
+            address: paymentIntent.shipping?.address?.line1 || "Address not provided",
+            city: paymentIntent.shipping?.address?.city || "City not provided",
+            state: paymentIntent.shipping?.address?.state || "State not provided",
+            zipCode: paymentIntent.shipping?.address?.postal_code || "ZIP not provided",
+          },
+          paymentIntentId: paymentIntent.id,
+        }
+
+        console.log("Email data prepared:", JSON.stringify(orderEmailData, null, 2))
+
+        // Send confirmation email to customer
         if (paymentIntent.receipt_email) {
-          console.log("Preparing to send email to:", paymentIntent.receipt_email)
-
-          const orderEmailData = {
-            customerEmail: paymentIntent.receipt_email,
-            customerName: metadata.customer_name || paymentIntent.shipping?.name || "Customer",
-            orderNumber: `CZ-${Date.now().toString().slice(-6)}`,
-            orderTotal: paymentIntent.amount / 100, // Convert from cents
-            orderItems: orderItems,
-            shippingAddress: {
-              name: paymentIntent.shipping?.name || metadata.customer_name || "Customer",
-              address: paymentIntent.shipping?.address?.line1 || "Address not provided",
-              city: paymentIntent.shipping?.address?.city || "City not provided",
-              state: paymentIntent.shipping?.address?.state || "State not provided",
-              zipCode: paymentIntent.shipping?.address?.postal_code || "ZIP not provided",
-            },
-            paymentIntentId: paymentIntent.id,
-          }
-
-          console.log("Email data prepared:", JSON.stringify(orderEmailData, null, 2))
-
           const emailResult = await sendOrderConfirmationEmail(orderEmailData)
           if (emailResult.success) {
-            console.log("Order confirmation email sent successfully")
+            console.log("✅ Customer confirmation email sent successfully")
           } else {
-            console.error("Failed to send order confirmation email:", emailResult.error)
+            console.error("❌ Failed to send customer confirmation email:", emailResult.error)
           }
-        } else {
-          console.log("No receipt_email found in payment intent")
+        }
+
+        // 🚨 CRITICAL: Send notification email to store owner
+        console.log("🚨 Sending order notification to store owner at elijahgummer5@gmail.com...")
+        try {
+          const ownerNotificationResult = await sendOrderNotificationToOwner(orderEmailData)
+          if (ownerNotificationResult.success) {
+            console.log("✅ Owner notification email sent successfully to elijahgummer5@gmail.com!")
+          } else {
+            console.error("❌ Failed to send owner notification email:", ownerNotificationResult.error)
+            // Try to send a backup notification
+            console.log("🔄 Attempting backup owner notification...")
+            const backupResult = await sendBackupOwnerNotification(orderEmailData)
+            console.log("Backup notification result:", backupResult)
+          }
+        } catch (error) {
+          console.error("❌ Critical error sending owner notification:", error)
         }
       } catch (error) {
         console.error("Error processing successful payment:", error)
