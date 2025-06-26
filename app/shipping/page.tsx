@@ -149,18 +149,6 @@ export default function ShippingPage() {
                 <div className="space-y-3">
                   <div className="flex items-center text-green-400">
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    <span className="text-sm">Package insurance included</span>
-                  </div>
-                  <div className="flex items-center text-green-400">
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    <span className="text-sm">Lost package replacement</span>
-                  </div>
-                  <div className="flex items-center text-green-400">
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    <span className="text-sm">Damage protection</span>
-                  </div>
-                  <div className="flex items-center text-green-400">
-                    <CheckCircle className="h-4 w-4 mr-2" />
                     <span className="text-sm">Real-time tracking</span>
                   </div>
                 </div>

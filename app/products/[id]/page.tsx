@@ -119,10 +119,14 @@ export default function ProductDetailPage() {
         ? product.plugTypes[selectedPlug]
         : null;
 
-    // Build a string describing the selected options
-    const optionLabel = [model?.name, mode?.name, color?.name, length, plug]
-      .filter(Boolean)
-      .join(" / ");
+    // Build an options object for the selected options
+    const optionObj = {
+      model: model?.name,
+      mode: mode?.name,
+      color: color?.name,
+      length: length ?? undefined,
+      plugType: plug ?? undefined,
+    };
 
     // Prefer image in this order: model > mode > color > default
     const optionImage =
@@ -135,7 +139,7 @@ export default function ProductDetailPage() {
     for (let i = 0; i < quantity; i++) {
       addItem(
         product,
-        optionLabel.length > 0 ? optionLabel : undefined,
+        Object.values(optionObj).some(Boolean) ? optionObj : undefined,
         optionImage
       );
     }
