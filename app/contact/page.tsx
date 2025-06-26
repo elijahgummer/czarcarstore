@@ -162,21 +162,21 @@ export default function ContactPage() {
                   <Mail className="h-6 w-6 text-red-400 mt-1" />
                   <div>
                     <h3 className="font-semibold text-white">Email Support</h3>
-                    <p className="text-gray-400">support@czarcar.com</p>
+                    <p className="text-gray-400">czarcarphotos@gmail.com</p>
                     <p className="text-gray-500 text-sm">We respond within 24 hours</p>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-4">
+                {/* <div className="flex items-start space-x-4">
                   <Phone className="h-6 w-6 text-blue-400 mt-1" />
                   <div>
                     <h3 className="font-semibold text-white">Phone Support</h3>
                     <p className="text-gray-400">+1 (555) 123-4567</p>
                     <p className="text-gray-500 text-sm">Mon-Fri, 9AM-6PM EST</p>
                   </div>
-                </div>
+                </div> */}
 
-                <div className="flex items-start space-x-4">
+                {/* <div className="flex items-start space-x-4">
                   <MapPin className="h-6 w-6 text-green-400 mt-1" />
                   <div>
                     <h3 className="font-semibold text-white">Address</h3>
@@ -188,7 +188,7 @@ export default function ContactPage() {
                       United States
                     </p>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="flex items-start space-x-4">
                   <Clock className="h-6 w-6 text-purple-400 mt-1" />
@@ -245,7 +245,6 @@ export default function ContactPage() {
               <h3 className="text-blue-300 font-semibold mb-3">📧 Response Times</h3>
               <div className="space-y-2 text-blue-200 text-sm">
                 <p>• Email: Within 24 hours</p>
-                <p>• Phone: Immediate during business hours</p>
                 <p>• Live Chat: Coming soon!</p>
                 <p>• Order Issues: Priority response within 4 hours</p>
               </div>
