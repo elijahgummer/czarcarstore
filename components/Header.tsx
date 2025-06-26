@@ -6,6 +6,7 @@ import { ShoppingCart, Menu, X, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useCart } from "@/lib/cart"
+import Image from "next/image"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -17,7 +18,17 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          
+          <Link href="/" className="flex items-center space-x-2 text-2xl font-bold text-red-500 hover:text-red-400 transition-colors">
+            <Image
+              src="/logo.png"
+              alt="CzarCar Logo"
+              width={36}
+              height={36}
+              className="object-contain"
+              priority
+            />
+            <span>CzarCar</span>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
