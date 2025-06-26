@@ -39,29 +39,23 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/products?category=maintenance"
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  Maintenance Tools
+                <Link href="/about" className="text-gray-400 hover:text-white transition-colors">
+                  About Us
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/products?category=electronics"
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  Electronics
+                <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
+                  Contact
                 </Link>
               </li>
               <li>
-                <Link href="/products?category=interior" className="text-gray-400 hover:text-white transition-colors">
-                  Interior Accessories
+                <Link href="/shipping" className="text-gray-400 hover:text-white transition-colors">
+                  Shipping Info
                 </Link>
               </li>
               <li>
-                <Link href="/products?category=safety" className="text-gray-400 hover:text-white transition-colors">
-                  Safety Equipment
+                <Link href="/returns" className="text-gray-400 hover:text-white transition-colors">
+                  Returns & Refunds
                 </Link>
               </li>
             </ul>
@@ -72,23 +66,28 @@ export default function Footer() {
             <h4 className="text-lg font-semibold text-silver-400 mb-4">Customer Service</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/shipping" className="text-gray-400 hover:text-white transition-colors">
                   Shipping Info
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/returns" className="text-gray-400 hover:text-white transition-colors">
                   Returns
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-                  Warranty
+                <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">
+                  Terms of Service
                 </Link>
               </li>
             </ul>

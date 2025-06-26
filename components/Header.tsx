@@ -1,53 +1,46 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import Link from "next/link";
-import { ShoppingCart, Menu, X, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useCart } from "@/lib/cart";
-import Image from "next/image";
+import { useState } from "react"
+import Link from "next/link"
+import { ShoppingCart, Menu, X, Search } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { useCart } from "@/lib/cart"
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { items } = useCart();
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { items } = useCart()
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
     <header className="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center space-x-2 text-2xl font-bold text-red-500 hover:text-red-400 transition-colors"
-          >
-            <Image
-              src="/logo.png"
-              alt="CzarCar Logo"
-              width={36}
-              height={36}
-              className="object-contain"
-              priority
-            />
-            <span>CzarCar</span>
+          <Link href="/" className="text-2xl font-bold text-red-500 hover:text-red-400 transition-colors">
+            CzarCar
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link
-              href="/"
-              className="text-gray-300 hover:text-white transition-colors"
-            >
+            <Link href="/" className="text-gray-300 hover:text-white transition-colors">
               Home
             </Link>
-            <Link
-              href="/products"
-              className="text-gray-300 hover:text-white transition-colors"
-            >
+            <Link href="/products" className="text-gray-300 hover:text-white transition-colors">
               Products
             </Link>
-            
+            <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
+              About
+            </Link>
+            <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">
+              Contact
+            </Link>
+            <Link href="/shipping" className="text-gray-300 hover:text-white transition-colors">
+              Shipping
+            </Link>
+            <Link href="/returns" className="text-gray-300 hover:text-white transition-colors">
+              Returns
+            </Link>
           </nav>
 
           {/* Search Bar */}
@@ -63,13 +56,9 @@ export default function Header() {
           </div>
 
           {/* Cart and Mobile Menu */}
-          <div className="flex items-center space-x-4 ml-auto">
+          <div className="flex items-center space-x-4">
             <Link href="/cart" className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-gray-300 hover:text-white"
-              >
+              <Button variant="ghost" size="icon" className="text-gray-300 hover:text-white">
                 <ShoppingCart className="h-6 w-6" />
                 {itemCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -86,11 +75,7 @@ export default function Header() {
               className="md:hidden text-gray-300 hover:text-white"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
@@ -99,41 +84,23 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-800">
             <nav className="flex flex-col space-y-4">
-              <Link
-                href="/"
-                className="text-gray-300 hover:text-white transition-colors"
-              >
+              <Link href="/" className="text-gray-300 hover:text-white transition-colors">
                 Home
               </Link>
-              <Link
-                href="/products"
-                className="text-gray-300 hover:text-white transition-colors"
-              >
+              <Link href="/products" className="text-gray-300 hover:text-white transition-colors">
                 Products
               </Link>
-              <Link
-                href="/products?category=maintenance"
-                className="text-gray-300 hover:text-white transition-colors"
-              >
-                Maintenance
+              <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
+                About
               </Link>
-              <Link
-                href="/products?category=electronics"
-                className="text-gray-300 hover:text-white transition-colors"
-              >
-                Electronics
+              <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">
+                Contact
               </Link>
-              <Link
-                href="/products?category=interior"
-                className="text-gray-300 hover:text-white transition-colors"
-              >
-                Interior
+              <Link href="/shipping" className="text-gray-300 hover:text-white transition-colors">
+                Shipping
               </Link>
-              <Link
-                href="/products?category=safety"
-                className="text-gray-300 hover:text-white transition-colors"
-              >
-                Safety
+              <Link href="/returns" className="text-gray-300 hover:text-white transition-colors">
+                Returns
               </Link>
               <div className="pt-4">
                 <Input
@@ -147,5 +114,5 @@ export default function Header() {
         )}
       </div>
     </header>
-  );
+  )
 }
