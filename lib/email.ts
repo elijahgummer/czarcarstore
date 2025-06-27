@@ -43,7 +43,7 @@ export async function sendOrderConfirmationEmail(orderData: OrderEmailData) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: "CzarCar <onboarding@resend.dev>", // Use Resend's default domain for testing
+      from: "CzarCar <czarcarphotos@gmail.com>", // Use Resend's default domain for testing
       to: [orderData.customerEmail],
       subject: `Order Confirmation - ${orderData.orderNumber}`,
       html: generateOrderConfirmationHTML(orderData),
@@ -78,7 +78,7 @@ export async function sendOrderNotificationToOwner(orderData: OrderEmailData) {
     console.log("📧 Sending owner notification to:", OWNER_EMAIL)
 
     const { data, error } = await resend.emails.send({
-      from: "CzarCar Orders <onboarding@resend.dev>",
+      from: "CzarCar Orders <czarcarphotos@gmail.com>",
       to: [OWNER_EMAIL],
       subject: `🚨 NEW ORDER #${orderData.orderNumber} - $${orderData.orderTotal.toFixed(2)} - SHIP NOW!`,
       html: generateOwnerNotificationHTML(orderData),
@@ -103,7 +103,7 @@ export async function sendBackupOwnerNotification(orderData: OrderEmailData) {
     console.log("🔄 Sending backup owner notification...")
 
     const { data, error } = await resend.emails.send({
-      from: "CzarCar Backup <onboarding@resend.dev>",
+      from: "CzarCar Backup <czarcarphotos@gmail.com>",
       to: ["elijahgummer5@gmail.com"], // Your email hardcoded
       subject: `🚨 BACKUP ALERT - Order ${orderData.orderNumber} - $${orderData.orderTotal.toFixed(2)}`,
       html: generateSimpleOwnerNotificationHTML(orderData),
@@ -119,7 +119,7 @@ export async function sendBackupOwnerNotification(orderData: OrderEmailData) {
 export async function sendShippingNotificationEmail(orderData: OrderEmailData & { trackingNumber?: string }) {
   try {
     const { data, error } = await resend.emails.send({
-      from: "CzarCar <shipping@czarcar.com>",
+      from: "CzarCar <czarcarphotos@gmail.com>",
       to: [orderData.customerEmail],
       subject: `Your Order is Shipping - ${orderData.orderNumber}`,
       html: generateShippingNotificationHTML(orderData),
@@ -484,7 +484,7 @@ function generateOrderConfirmationHTML(orderData: OrderEmailData): string {
         <p style="color: #6b7280; margin: 0 0 10px 0;">Thank you for choosing CzarCar!</p>
         <p style="color: #9ca3af; font-size: 14px; margin: 0;">
           Questions? Contact us at 
-          <a href="mailto:support@czarcar.com" style="color: #ef4444; text-decoration: none;">support@czarcar.com</a>
+          <a href="mailto:czarcarphotos@gmail.com" style="color: #ef4444; text-decoration: none;">czarcarphotos@gmail.com</a>
         </p>
         <p style="color: #9ca3af; font-size: 12px; margin: 10px 0 0 0;">
           🌟 Leave a review and get 10% off your next order!
@@ -574,7 +574,7 @@ function generateShippingNotificationHTML(orderData: OrderEmailData & { tracking
         <p style="color: #6b7280; margin: 0 0 10px 0;">Thank you for your business!</p>
         <p style="color: #9ca3af; font-size: 14px; margin: 0;">
           Questions about your shipment? Contact us at 
-          <a href="mailto:support@czarcar.com" style="color: #ef4444; text-decoration: none;">support@czarcar.com</a>
+          <a href="mailto:czarcarphotos@gmail.com" style="color: #ef4444; text-decoration: none;">czarcarphotos@gmail.com</a>
         </p>
       </div>
 
