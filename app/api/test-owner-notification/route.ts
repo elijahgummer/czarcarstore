@@ -1,26 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
-// Make sure sendOrderNotificationToOwner is exported from "@/lib/email"
-// If it is not, either export it in that file or import the correct function here
-// Make sure sendOrderNotificationToOwner is exported from "@/lib/email"
-// If not, import the correct function name as exported from that file
-import { type OrderEmailData } from "@/lib/email"
-// import { sendOrderNotificationToOwner } from "@/lib/email" // Uncomment and use the correct function name below
+import { sendOrderNotificationToOwner, type OrderEmailData } from "@/lib/email"
 
-// Example: If the function is named sendOwnerNotification in the module, import as:
-import { sendOwnerNotification as sendOrderNotificationToOwner } from "@/lib/email"
-
-// Patch: Extend OrderEmailData type locally to include 'options' in orderItems if not present in the original type
-type OrderItemWithOptions = {
-  name: string;
-  options: string;
-  quantity: number;
-  price: number;
-  total: number;
-};
-
-type OrderEmailDataWithOptions = Omit<OrderEmailData, "orderItems"> & {
-  orderItems: OrderItemWithOptions[];
-};
+export async function POST(request: NextRequest) {
+  try {
+    console.log("🧪 Testing owner notification system...")
 
 // Create test order data
 const testOrderData: OrderEmailDataWithOptions = {
