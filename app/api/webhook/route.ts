@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
         // 🚨 CRITICAL: Send notification email to store owner (YOU!)
         console.log("🚨 SENDING ORDER NOTIFICATION TO ELIJAH...")
-        let ownerNotificationResult = { success: false } // Declare the variable before using it
+        let ownerNotificationResult: { success: boolean; error?: any } = { success: false } // Declare the variable before using it
         try {
           ownerNotificationResult = await sendOrderNotificationToOwner(orderEmailData)
           if (ownerNotificationResult.success) {

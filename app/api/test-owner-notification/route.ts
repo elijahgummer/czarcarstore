@@ -1,12 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { sendOrderNotificationToOwner, type OrderEmailData } from "@/lib/email"
-
-export async function POST(request: NextRequest) {
-  try {
-    console.log("🧪 Testing owner notification system...")
+// import { sendBackupOwnerNotification } from "@/lib/email"
 
 // Create test order data
-const testOrderData: OrderEmailDataWithOptions = {
+const testOrderData: OrderEmailData = {
   customerEmail: "testcustomer@example.com",
   customerName: "John Smith",
   orderNumber: `CZ-TEST-${Date.now().toString().slice(-6)}`,
@@ -53,30 +50,15 @@ export async function POST(req: NextRequest) {
         data: result.data,
       })
     } else {
-      console.log("❌ Primary notification failed, trying backup...")
-
-      // Try backup notification
-      const backupResult = await sendBackupOwnerNotification(testOrderData)
-
-      if (backupResult.success) {
-        console.log("✅ Backup owner notification sent successfully!")
-        return NextResponse.json({
-          success: true,
-          message: "Test backup notification sent successfully to elijahgummer5@gmail.com",
-          data: backupResult.data,
-        })
-      } else {
-        console.error("❌ Both notifications failed:", backupResult.error)
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Both primary and backup notifications failed",
-            primaryError: result.error,
-            backupError: backupResult.error,
-          },
-          { status: 500 },
-        )
-      }
+      console.error("❌ Primary notification failed:", result.error)
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Primary notification failed",
+          primaryError: result.error,
+        },
+        { status: 500 },
+      )
     }
   } catch (error) {
     console.error("❌ Error in test owner notification:", error)
