@@ -1,42 +1,62 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { sendOrderNotificationToOwner, type OrderEmailData } from "@/lib/email"
+// Make sure sendOrderNotificationToOwner is exported from "@/lib/email"
+// If it is not, either export it in that file or import the correct function here
+// Make sure sendOrderNotificationToOwner is exported from "@/lib/email"
+// If not, import the correct function name as exported from that file
+import { type OrderEmailData } from "@/lib/email"
+// import { sendOrderNotificationToOwner } from "@/lib/email" // Uncomment and use the correct function name below
 
-export async function POST(request: NextRequest) {
+// Example: If the function is named sendOwnerNotification in the module, import as:
+import { sendOwnerNotification as sendOrderNotificationToOwner } from "@/lib/email"
+
+// Patch: Extend OrderEmailData type locally to include 'options' in orderItems if not present in the original type
+type OrderItemWithOptions = {
+  name: string;
+  options: string;
+  quantity: number;
+  price: number;
+  total: number;
+};
+
+type OrderEmailDataWithOptions = Omit<OrderEmailData, "orderItems"> & {
+  orderItems: OrderItemWithOptions[];
+};
+
+// Create test order data
+const testOrderData: OrderEmailDataWithOptions = {
+  customerEmail: "testcustomer@example.com",
+  customerName: "John Smith",
+  orderNumber: `CZ-TEST-${Date.now().toString().slice(-6)}`,
+  orderTotal: 89.99,
+  orderItems: [
+    {
+      name: "LED Strip Lights",
+      options: "Blue / 3M / USB Plug",
+      quantity: 2,
+      price: 29.99,
+      total: 59.98,
+    },
+    {
+      name: "Phone Holder",
+      options: "Mode 2",
+      quantity: 1,
+      price: 29.99,
+      total: 29.99,
+    },
+  ],
+  shippingAddress: {
+    name: "John Smith",
+    address: "123 Test Street",
+    city: "Sydney",
+    state: "NSW",
+    zipCode: "2000",
+  },
+  paymentIntentId: "pi_test_1234567890",
+};
+
+// Export an async handler function for the API route
+export async function POST(req: NextRequest) {
   try {
-    console.log("🧪 Testing owner notification system...")
-
-    // Create test order data
-    const testOrderData: OrderEmailData = {
-      customerEmail: "testcustomer@example.com",
-      customerName: "John Smith",
-      orderNumber: `CZ-TEST-${Date.now().toString().slice(-6)}`,
-      orderTotal: 89.99,
-      orderItems: [
-        {
-          name: "LED Strip Lights",
-          options: "Blue / 3M / USB Plug",
-          quantity: 2,
-          price: 29.99,
-          total: 59.98,
-        },
-        {
-          name: "Phone Holder",
-          options: "Mode 2",
-          quantity: 1,
-          price: 29.99,
-          total: 29.99,
-        },
-      ],
-      shippingAddress: {
-        name: "John Smith",
-        address: "123 Test Street",
-        city: "Sydney",
-        state: "NSW",
-        zipCode: "2000",
-      },
-      paymentIntentId: "pi_test_1234567890",
-    }
-
     console.log("📧 Sending test notification to elijahgummer5@gmail.com...")
 
     // Try primary notification
