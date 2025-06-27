@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
-import { sendOrderConfirmationEmail, sendOrderNotificationToOwner, sendBackupOwnerNotification } from "@/lib/email"
+import { sendOrderConfirmationEmail, sendOrderNotificationToOwner } from "@/lib/email"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-05-28.basil",
@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
 export async function POST(request: NextRequest) {
-  console.log("Webhook received")
+  console.log("🔔 Webhook received")
 
   const body = await request.text()
   const signature = request.headers.get("stripe-signature")!
@@ -18,19 +18,19 @@ export async function POST(request: NextRequest) {
 
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
-    console.log("Webhook event type:", event.type)
+    console.log("✅ Webhook event type:", event.type)
   } catch (error) {
-    console.error("Webhook signature verification failed:", error)
+    console.error("❌ Webhook signature verification failed:", error)
     return NextResponse.json({ error: "Webhook signature verification failed" }, { status: 400 })
   }
 
   switch (event.type) {
     case "payment_intent.succeeded":
       const paymentIntent = event.data.object as Stripe.PaymentIntent
-      console.log("Payment succeeded:", paymentIntent.id)
-      console.log("Payment Intent metadata:", paymentIntent.metadata)
-      console.log("Payment Intent receipt_email:", paymentIntent.receipt_email)
-      console.log("Payment Intent shipping:", paymentIntent.shipping)
+      console.log("💰 Payment succeeded:", paymentIntent.id)
+      console.log("📋 Payment Intent metadata:", paymentIntent.metadata)
+      console.log("📧 Payment Intent receipt_email:", paymentIntent.receipt_email)
+      console.log("📦 Payment Intent shipping:", paymentIntent.shipping)
 
       try {
         // Extract order data from metadata
@@ -39,17 +39,20 @@ export async function POST(request: NextRequest) {
 
         try {
           orderItems = metadata.order_items ? JSON.parse(metadata.order_items) : []
-          console.log("Parsed order items:", orderItems)
+          console.log("📦 Parsed order items:", orderItems)
         } catch (parseError) {
-          console.error("Error parsing order items:", parseError)
+          console.error("❌ Error parsing order items:", parseError)
           orderItems = []
         }
+
+        // Generate unique order number
+        const orderNumber = `CZ-${Date.now().toString().slice(-6)}`
 
         // Prepare order data for emails
         const orderEmailData = {
           customerEmail: paymentIntent.receipt_email || "customer@example.com",
           customerName: metadata.customer_name || paymentIntent.shipping?.name || "Customer",
-          orderNumber: `CZ-${Date.now().toString().slice(-6)}`,
+          orderNumber: orderNumber,
           orderTotal: paymentIntent.amount / 100, // Convert from cents
           orderItems: orderItems,
           shippingAddress: {
@@ -62,46 +65,53 @@ export async function POST(request: NextRequest) {
           paymentIntentId: paymentIntent.id,
         }
 
-        console.log("Email data prepared:", JSON.stringify(orderEmailData, null, 2))
+        console.log("📋 Email data prepared:", JSON.stringify(orderEmailData, null, 2))
 
-        // Send confirmation email to customer
-        if (paymentIntent.receipt_email) {
-          const emailResult = await sendOrderConfirmationEmail(orderEmailData)
-          if (emailResult.success) {
-            console.log("✅ Customer confirmation email sent successfully")
-          } else {
-            console.error("❌ Failed to send customer confirmation email:", emailResult.error)
-          }
-        }
-
-        // 🚨 CRITICAL: Send notification email to store owner
-        console.log("🚨 Sending order notification to store owner at elijahgummer5@gmail.com...")
+        // 🚨 CRITICAL: Send notification email to store owner (YOU!)
+        console.log("🚨 SENDING ORDER NOTIFICATION TO ELIJAH...")
+        let ownerNotificationResult = { success: false } // Declare the variable before using it
         try {
-          const ownerNotificationResult = await sendOrderNotificationToOwner(orderEmailData)
+          ownerNotificationResult = await sendOrderNotificationToOwner(orderEmailData)
           if (ownerNotificationResult.success) {
-            console.log("✅ Owner notification email sent successfully to elijahgummer5@gmail.com!")
+            console.log("✅ SUCCESS: Owner notification sent to elijahgummer5@gmail.com!")
           } else {
-            console.error("❌ Failed to send owner notification email:", ownerNotificationResult.error)
-            // Try to send a backup notification
-            console.log("🔄 Attempting backup owner notification...")
-            const backupResult = await sendBackupOwnerNotification(orderEmailData)
-            console.log("Backup notification result:", backupResult)
+            console.error("❌ FAILED: Owner notification error:", ownerNotificationResult.error)
           }
-        } catch (error) {
-          console.error("❌ Critical error sending owner notification:", error)
+        } catch (ownerError) {
+          console.error("❌ CRITICAL ERROR sending owner notification:", ownerError)
         }
+
+        // 📧 Send confirmation email to customer
+        if (paymentIntent.receipt_email) {
+          console.log("📧 Sending customer confirmation email...")
+          try {
+            const customerEmailResult = await sendOrderConfirmationEmail(orderEmailData)
+            if (customerEmailResult.success) {
+              console.log("✅ SUCCESS: Customer confirmation email sent!")
+            } else {
+              console.error("❌ FAILED: Customer email error:", customerEmailResult.error)
+            }
+          } catch (customerError) {
+            console.error("❌ ERROR sending customer email:", customerError)
+          }
+        }
+
+        // 📊 Log final status
+        console.log("🎉 ORDER PROCESSING COMPLETE")
+        console.log(`📧 Owner email: ${ownerNotificationResult?.success ? "SENT" : "FAILED"}`)
+        console.log(`📧 Customer email: ${paymentIntent.receipt_email ? "SENT" : "NO EMAIL PROVIDED"}`)
       } catch (error) {
-        console.error("Error processing successful payment:", error)
+        console.error("❌ CRITICAL ERROR processing successful payment:", error)
       }
       break
 
     case "payment_intent.payment_failed":
       const failedPayment = event.data.object as Stripe.PaymentIntent
-      console.log("Payment failed:", failedPayment.id)
+      console.log("❌ Payment failed:", failedPayment.id)
       break
 
     default:
-      console.log(`Unhandled event type: ${event.type}`)
+      console.log(`ℹ️ Unhandled event type: ${event.type}`)
   }
 
   return NextResponse.json({ received: true })
