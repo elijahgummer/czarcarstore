@@ -321,6 +321,15 @@ function generateOwnerNotificationHTML(orderData: OrderEmailData): string {
           </div>
         </div>
       </div>
+       <!-- Add this block after the customer contact details or items to ship -->
+      <div style="background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 12px; padding: 25px; margin-bottom: 25px;">
+        <h3 style="margin: 0 0 20px 0; color: #111827; font-size: 20px;">🚚 Shipping Address</h3>
+        <div style="color: #374151; line-height: 1.5;">
+          <div style="font-weight: 600;">${orderData.shippingAddress.name}</div>
+          <div>${orderData.shippingAddress.address}</div>
+          <div>${orderData.shippingAddress.city}, ${orderData.shippingAddress.state} ${orderData.shippingAddress.zipCode}</div>
+        </div>
+      </div>
       <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 2px solid #3b82f6; border-radius: 12px; padding: 25px; margin-bottom: 25px;">
         <h3 style="margin: 0 0 20px 0; color: #1d4ed8; font-size: 22px; font-weight: bold;">⚡ IMMEDIATE ACTION REQUIRED</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
