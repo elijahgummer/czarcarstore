@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { sendOrderConfirmationEmail, type OrderEmailData } from "@/lib/email"
+import { sendOrderConfirmationEmail, sendOrderNotificationToOwner, type OrderEmailData } from "@/lib/email"
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,14 +10,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required order data" }, { status: 400 })
     }
 
-    // Send the email
-    const result = await sendOrderConfirmationEmail(orderData)
+    // Send the customer confirmation email
+    const customerResult = await sendOrderConfirmationEmail(orderData)
 
-    if (result.success) {
-      return NextResponse.json({ success: true, message: "Order confirmation email sent" })
+    // Send the owner notification email
+    const ownerResult = await sendOrderNotificationToOwner(orderData)
+
+    if (customerResult.success && ownerResult.success) {
+      return NextResponse.json({ success: true, message: "Order confirmation and owner alert sent" })
     } else {
-      console.error("Failed to send email:", result.error)
-      return NextResponse.json({ error: "Failed to send email" }, { status: 500 })
+      console.error("Failed to send email:", customerResult.error || ownerResult.error)
+      return NextResponse.json({ error: "Failed to send one or more emails" }, { status: 500 })
     }
   } catch (error) {
     console.error("Error in send-order-email API:", error)
