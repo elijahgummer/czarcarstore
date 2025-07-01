@@ -29,7 +29,7 @@ const products: Product[] = [
     ],
     description:
       "Collapsible Silicone Car Funnel. High-quality, heat-resistant silicone (-20°C to 220°C). Foldable, space-saving design. Easy to clean and hang. Universal fitment for all cars. Available in blue or black color. Avoid cutting or prolonged high heat. Clean with neutral detergent.",
-    price: 13.95,
+    price: 0.50,
     originalPrice: 19.95,
     discount: 30,
     image: [
