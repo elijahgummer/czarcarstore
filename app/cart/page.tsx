@@ -76,18 +76,23 @@ export default function CartPage() {
               <CardContent>
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4 p-4 border border-gray-700 rounded-lg">
+                    <div
+                      key={item.id}
+                      className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border border-gray-700 rounded-lg bg-gray-900"
+                    >
                       <Image
                         src={item.optionImage || item.product.image?.[0] || "/placeholder.svg"}
                         alt={item.product.name}
                         width={80}
                         height={80}
-                        className="w-20 h-20 object-contain bg-black rounded"
+                        className="w-20 h-20 object-contain bg-black rounded self-center sm:self-auto"
                       />
 
-                      <div className="flex-1">
-                        <h3 className="text-white font-semibold">{item.product.name}</h3>
-                        {item.optionLabel && <p className="text-blue-400 text-sm font-medium">{item.optionLabel}</p>}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-white font-semibold break-words">{item.product.name}</h3>
+                        {item.optionLabel && (
+                          <p className="text-blue-400 text-sm font-medium">{item.optionLabel}</p>
+                        )}
                         <p className="text-gray-400 text-sm">{item.product.category}</p>
                         <p className="text-red-400 font-bold">${item.product.price.toFixed(2)}</p>
                       </div>
@@ -112,8 +117,10 @@ export default function CartPage() {
                         </Button>
                       </div>
 
-                      <div className="text-right">
-                        <p className="text-white font-semibold">${(item.product.price * item.quantity).toFixed(2)}</p>
+                      <div className="text-right min-w-[80px]">
+                        <p className="text-white font-semibold">
+                          ${(item.product.price * item.quantity).toFixed(2)}
+                        </p>
                         <Button
                           onClick={() => removeItem(item.id)}
                           variant="ghost"
