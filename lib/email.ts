@@ -61,7 +61,7 @@ export async function sendOrderNotificationToOwner(orderData: OrderEmailData) {
 
     if (!process.env.RESEND_API_KEY) throw new Error("RESEND_API_KEY environment variable is not set")
 
-    const OWNER_EMAIL = process.env.OWNER_EMAIL || "jorrelgummer@gmail.com"
+    const OWNER_EMAIL = process.env.OWNER_EMAIL || "elijahgummer5@gmail.com"
 
     console.log("📧 Sending owner notification to:", OWNER_EMAIL)
 
