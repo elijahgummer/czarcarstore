@@ -1,19 +1,29 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Truck, Lock, CreditCard, Mail, Globe } from "lucide-react"
-import { useCart } from "@/lib/cart"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import toast from "react-hot-toast"
+import { useState, useEffect } from "react";
+import {
+  useStripe,
+  useElements,
+  PaymentElement,
+} from "@stripe/react-stripe-js";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Truck, Lock, CreditCard, Mail, Globe } from "lucide-react";
+import { useCart } from "@/lib/cart";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import toast from "react-hot-toast";
 import {
   countries,
   getCountryByCode,
@@ -21,11 +31,12 @@ import {
   getAddressLabels,
   formatCurrency,
   stripeSupportedCurrencies,
-} from "@/lib/countries"
-import Image from "next/image"
+} from "@/lib/countries";
+import Image from "next/image";
+import Link from "next/link";
 
 const createShippingSchema = (countryCode: string) => {
-  const labels = getAddressLabels(countryCode)
+  const labels = getAddressLabels(countryCode);
 
   return z.object({
     firstName: z.string().min(1, "First name is required"),
@@ -34,30 +45,33 @@ const createShippingSchema = (countryCode: string) => {
     phone: z.string().min(1, "Phone number is required"),
     address: z.string().min(1, `${labels.address} is required`),
     city: z.string().min(1, `${labels.city} is required`),
-    state: labels.stateRequired ? z.string().min(1, `${labels.state} is required`) : z.string().optional(),
+    state: labels.stateRequired
+      ? z.string().min(1, `${labels.state} is required`)
+      : z.string().optional(),
     postalCode: z.string().min(1, `${labels.postalCode} is required`),
     country: z.string().min(1, "Country is required"),
-  })
-}
+  });
+};
 
-type ShippingFormData = z.infer<ReturnType<typeof createShippingSchema>>
+type ShippingFormData = z.infer<ReturnType<typeof createShippingSchema>>;
 
 interface CheckoutFormProps {
-  clientSecret: string
+  clientSecret: string;
 }
 
 export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
-  const stripe = useStripe()
-  const elements = useElements()
-  const { items, getTotal, clearCart } = useCart()
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
-  const [selectedCountry, setSelectedCountry] = useState("US")
-  const [currency, setCurrency] = useState("USD")
-
-  const country = getCountryByCode(selectedCountry)
-  const addressLabels = getAddressLabels(selectedCountry)
-  const statesForCountry = getStatesForCountry(selectedCountry)
+  const stripe = useStripe();
+  const elements = useElements();
+  const { items, getTotal, clearCart } = useCart();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState("US");
+  const [currency, setCurrency] = useState("USD");
+  const [agreed, setAgreed] = useState(false);
+  const [agreementError, setAgreementError] = useState<string | null>(null);
+  const country = getCountryByCode(selectedCountry);
+  const addressLabels = getAddressLabels(selectedCountry);
+  const statesForCountry = getStatesForCountry(selectedCountry);
 
   const {
     register,
@@ -71,63 +85,71 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
     defaultValues: {
       country: selectedCountry,
     },
-  })
+  });
 
-  const subtotal = getTotal()
-  const tax = selectedCountry === "US" ? subtotal * 0.08 : 0 // Only apply tax for US
-  const total = subtotal + tax
+  const subtotal = getTotal();
+  const tax = selectedCountry === "US" ? subtotal * 0.08 : 0; // Only apply tax for US
+  const total = subtotal + tax;
 
   // Update currency when country changes
   useEffect(() => {
     if (country && stripeSupportedCurrencies.includes(country.currency)) {
-      setCurrency(country.currency)
+      setCurrency(country.currency);
     } else {
-      setCurrency("USD") // Fallback to USD for unsupported currencies
+      setCurrency("USD"); // Fallback to USD for unsupported currencies
     }
-  }, [country])
+  }, [country]);
 
   // Reset form when country changes
   useEffect(() => {
-    setValue("country", selectedCountry)
-    setValue("state", "") // Reset state when country changes
-  }, [selectedCountry, setValue])
+    setValue("country", selectedCountry);
+    setValue("state", ""); // Reset state when country changes
+  }, [selectedCountry, setValue]);
 
   useEffect(() => {
-    if (!stripe) return
-    if (!clientSecret) return
+    if (!stripe) return;
+    if (!clientSecret) return;
 
     stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
       switch (paymentIntent?.status) {
         case "succeeded":
-          setMessage("Payment succeeded!")
-          toast.success("Payment successful!")
-          clearCart()
-          break
+          setMessage("Payment succeeded!");
+          toast.success("Payment successful!");
+          clearCart();
+          break;
         case "processing":
-          setMessage("Your payment is processing.")
-          break
+          setMessage("Your payment is processing.");
+          break;
         case "requires_payment_method":
-          setMessage("Your payment was not successful, please try again.")
-          break
+          setMessage("Your payment was not successful, please try again.");
+          break;
         default:
-          setMessage("Something went wrong.")
-          break
+          setMessage("Something went wrong.");
+          break;
       }
-    })
-  }, [stripe, clientSecret, clearCart])
+    });
+  }, [stripe, clientSecret, clearCart]);
 
   const onSubmit = async (data: ShippingFormData) => {
-    if (!stripe || !elements) {
-      toast.error("Payment system not ready. Please try again.")
-      return
+    if (!agreed) {
+      setAgreementError(
+        "You must agree to the terms and conditions to proceed."
+      );
+      return;
     }
 
-    setIsProcessing(true)
-    setMessage(null)
+    setIsProcessing(true);
+    setMessage(null);
+    setAgreementError(null);
+
+    if (!stripe) {
+      setMessage("Stripe has not loaded yet. Please try again in a moment.");
+      setIsProcessing(false);
+      return;
+    }
 
     try {
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
+      const confirmPaymentOptions: any = {
         confirmParams: {
           return_url: `${window.location.origin}/order-confirmation`,
           shipping: {
@@ -143,20 +165,24 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
           },
           receipt_email: data.email,
         },
-        redirect: "if_required",
-      })
+        redirect: "always",
+      };
+      if (elements) {
+        confirmPaymentOptions.elements = elements;
+      }
+      const { error, paymentIntent } = await stripe.confirmPayment(confirmPaymentOptions);
 
       if (error) {
-        console.error("Payment error:", error)
+        console.error("Payment error:", error);
         if (error.type === "card_error" || error.type === "validation_error") {
-          setMessage(error.message || "Payment failed")
-          toast.error(error.message || "Payment failed")
+          setMessage(error.message || "Payment failed");
+          toast.error(error.message || "Payment failed");
         } else {
-          setMessage("An unexpected error occurred.")
-          toast.error("An unexpected error occurred")
+          setMessage("An unexpected error occurred.");
+          toast.error("An unexpected error occurred");
         }
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
-        toast.success("Payment successful! Check your email for confirmation.")
+        toast.success("Payment successful! Check your email for confirmation.");
 
         // Send order confirmation email
         try {
@@ -180,28 +206,28 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
               zipCode: data.postalCode,
             },
             paymentIntentId: paymentIntent.id,
-          }
+          };
 
           await fetch("/api/send-order-email", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderEmailData),
-          })
+          });
         } catch (emailError) {
-          console.error("Error sending confirmation email:", emailError)
+          console.error("Error sending confirmation email:", emailError);
         }
 
-        clearCart()
-        window.location.href = `/order-confirmation?payment_intent=${paymentIntent.id}&payment_intent_client_secret=${paymentIntent.client_secret}`
+        clearCart();
+        window.location.href = `/order-confirmation?payment_intent=${paymentIntent.id}&payment_intent_client_secret=${paymentIntent.client_secret}`;
       }
     } catch (err) {
-      console.error("Unexpected error:", err)
-      setMessage("An unexpected error occurred.")
-      toast.error("An unexpected error occurred")
+      console.error("Unexpected error:", err);
+      setMessage("An unexpected error occurred.");
+      toast.error("An unexpected error occurred");
     }
 
-    setIsProcessing(false)
-  }
+    setIsProcessing(false);
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -218,23 +244,37 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
             <CardContent className="space-y-4">
               {/* Country Selection */}
               <div>
-                <Label htmlFor="country" className="text-gray-300 flex items-center">
+                <Label
+                  htmlFor="country"
+                  className="text-gray-300 flex items-center"
+                >
                   <Globe className="mr-1 h-4 w-4" />
                   Country *
                 </Label>
-                <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                <Select
+                  value={selectedCountry}
+                  onValueChange={setSelectedCountry}
+                >
                   <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
                     <SelectValue placeholder="Select country" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-700 border-gray-600 max-h-60">
                     {countries.map((country) => (
-                      <SelectItem key={country.code} value={country.code} className="text-white hover:bg-gray-600">
+                      <SelectItem
+                        key={country.code}
+                        value={country.code}
+                        className="text-white hover:bg-gray-600"
+                      >
                         {country.name} ({country.currencySymbol})
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.country && <p className="text-red-400 text-sm mt-1">{errors.country.message}</p>}
+                {errors.country && (
+                  <p className="text-red-400 text-sm mt-1">
+                    {errors.country.message}
+                  </p>
+                )}
               </div>
 
               {/* Name Fields */}
@@ -243,22 +283,41 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                   <Label htmlFor="firstName" className="text-gray-300">
                     First Name *
                   </Label>
-                  <Input id="firstName" {...register("firstName")} className="bg-gray-700 border-gray-600 text-white" />
-                  {errors.firstName && <p className="text-red-400 text-sm mt-1">{errors.firstName.message}</p>}
+                  <Input
+                    id="firstName"
+                    {...register("firstName")}
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                  {errors.firstName && (
+                    <p className="text-red-400 text-sm mt-1">
+                      {errors.firstName.message}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="lastName" className="text-gray-300">
                     Last Name *
                   </Label>
-                  <Input id="lastName" {...register("lastName")} className="bg-gray-700 border-gray-600 text-white" />
-                  {errors.lastName && <p className="text-red-400 text-sm mt-1">{errors.lastName.message}</p>}
+                  <Input
+                    id="lastName"
+                    {...register("lastName")}
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                  {errors.lastName && (
+                    <p className="text-red-400 text-sm mt-1">
+                      {errors.lastName.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* Contact Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="email" className="text-gray-300 flex items-center">
+                  <Label
+                    htmlFor="email"
+                    className="text-gray-300 flex items-center"
+                  >
                     <Mail className="mr-1 h-4 w-4" />
                     Email *
                   </Label>
@@ -269,7 +328,11 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                     className="bg-gray-700 border-gray-600 text-white"
                     placeholder="your@email.com"
                   />
-                  {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
+                  {errors.email && (
+                    <p className="text-red-400 text-sm mt-1">
+                      {errors.email.message}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="phone" className="text-gray-300">
@@ -282,7 +345,11 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                     className="bg-gray-700 border-gray-600 text-white"
                     placeholder={`${country?.phoneCode || "+1"} 123 456 7890`}
                   />
-                  {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>}
+                  {errors.phone && (
+                    <p className="text-red-400 text-sm mt-1">
+                      {errors.phone.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -291,8 +358,16 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                 <Label htmlFor="address" className="text-gray-300">
                   {addressLabels.address} *
                 </Label>
-                <Input id="address" {...register("address")} className="bg-gray-700 border-gray-600 text-white" />
-                {errors.address && <p className="text-red-400 text-sm mt-1">{errors.address.message}</p>}
+                <Input
+                  id="address"
+                  {...register("address")}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+                {errors.address && (
+                  <p className="text-red-400 text-sm mt-1">
+                    {errors.address.message}
+                  </p>
+                )}
               </div>
 
               {/* City, State, Postal Code */}
@@ -301,23 +376,38 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                   <Label htmlFor="city" className="text-gray-300">
                     {addressLabels.city} *
                   </Label>
-                  <Input id="city" {...register("city")} className="bg-gray-700 border-gray-600 text-white" />
-                  {errors.city && <p className="text-red-400 text-sm mt-1">{errors.city.message}</p>}
+                  <Input
+                    id="city"
+                    {...register("city")}
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
+                  {errors.city && (
+                    <p className="text-red-400 text-sm mt-1">
+                      {errors.city.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* State/Province - Show dropdown for supported countries, input for others */}
                 <div>
                   <Label htmlFor="state" className="text-gray-300">
-                    {addressLabels.state} {addressLabels.stateRequired ? "*" : ""}
+                    {addressLabels.state}{" "}
+                    {addressLabels.stateRequired ? "*" : ""}
                   </Label>
                   {statesForCountry.length > 0 ? (
                     <Select onValueChange={(value) => setValue("state", value)}>
                       <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                        <SelectValue placeholder={`Select ${addressLabels.state.toLowerCase()}`} />
+                        <SelectValue
+                          placeholder={`Select ${addressLabels.state.toLowerCase()}`}
+                        />
                       </SelectTrigger>
                       <SelectContent className="bg-gray-700 border-gray-600 max-h-60">
                         {statesForCountry.map((state) => (
-                          <SelectItem key={state.code} value={state.code} className="text-white hover:bg-gray-600">
+                          <SelectItem
+                            key={state.code}
+                            value={state.code}
+                            className="text-white hover:bg-gray-600"
+                          >
                             {state.name}
                           </SelectItem>
                         ))}
@@ -331,7 +421,11 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                       placeholder={addressLabels.state}
                     />
                   )}
-                  {errors.state && <p className="text-red-400 text-sm mt-1">{errors.state.message}</p>}
+                  {errors.state && (
+                    <p className="text-red-400 text-sm mt-1">
+                      {errors.state.message}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -352,7 +446,11 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                             : "12345"
                     }
                   />
-                  {errors.postalCode && <p className="text-red-400 text-sm mt-1">{errors.postalCode.message}</p>}
+                  {errors.postalCode && (
+                    <p className="text-red-400 text-sm mt-1">
+                      {errors.postalCode.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -364,7 +462,9 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                     <span>
                       Prices shown in {currency}.
                       {currency !== country.currency && (
-                        <span className="text-yellow-300 ml-1">(Your local currency: {country.currency})</span>
+                        <span className="text-yellow-300 ml-1">
+                          (Your local currency: {country.currency})
+                        </span>
                       )}
                     </span>
                   </div>
@@ -397,7 +497,9 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                     },
                   }}
                 />
-                {message && <div className="text-red-400 text-sm">{message}</div>}
+                {message && (
+                  <div className="text-red-400 text-sm">{message}</div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -417,7 +519,11 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                     <div key={item.id} className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center overflow-hidden">
                         <Image
-                          src={item.optionImage || item.product.image?.[0] || "/placeholder.svg"}
+                          src={
+                            item.optionImage ||
+                            item.product.image?.[0] ||
+                            "/placeholder.svg"
+                          }
                           alt={item.product.name}
                           width={48}
                           height={48}
@@ -425,13 +531,26 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                         />
                       </div>
                       <div className="flex-1">
-                        <p className="text-white text-sm font-medium line-clamp-2">{item.product.name}</p>
-                        {item.optionLabel && <p className="text-blue-400 text-xs font-medium">{item.optionLabel}</p>}
-                        <p className="text-gray-400 text-xs">{formatCurrency(item.product.price, currency)} each</p>
-                        <p className="text-gray-500 text-xs">Qty: {item.quantity}</p>
+                        <p className="text-white text-sm font-medium line-clamp-2">
+                          {item.product.name}
+                        </p>
+                        {item.optionLabel && (
+                          <p className="text-blue-400 text-xs font-medium">
+                            {item.optionLabel}
+                          </p>
+                        )}
+                        <p className="text-gray-400 text-xs">
+                          {formatCurrency(item.product.price, currency)} each
+                        </p>
+                        <p className="text-gray-500 text-xs">
+                          Qty: {item.quantity}
+                        </p>
                       </div>
                       <p className="text-white font-semibold">
-                        {formatCurrency(item.product.price * item.quantity, currency)}
+                        {formatCurrency(
+                          item.product.price * item.quantity,
+                          currency
+                        )}
                       </p>
                     </div>
                   ))}
@@ -442,7 +561,11 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                 {/* Totals */}
                 <div className="space-y-2">
                   <div className="flex justify-between text-gray-300">
-                    <span>Subtotal ({items.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
+                    <span>
+                      Subtotal (
+                      {items.reduce((sum, item) => sum + item.quantity, 0)}{" "}
+                      items)
+                    </span>
                     <span>{formatCurrency(subtotal, currency)}</span>
                   </div>
                   <div className="flex justify-between text-gray-300">
@@ -470,6 +593,39 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                   </div>
                 </div>
 
+                {/* Agreement Checkbox - add this just above the Place Order Button */}
+                <div className="flex items-center space-x-2 mt-4">
+                  <input
+                    type="checkbox"
+                    id="agreement"
+                    checked={agreed}
+                    onChange={(e) => setAgreed(e.target.checked)}
+                    className="accent-red-600"
+                    required
+                  />
+                  <label htmlFor="agreement" className="text-sm text-gray-300">
+                    I agree to the{" "}
+                    <Link
+                      href="/terms"
+                      className="underline text-blue-400"
+                      target="_blank"
+                    >
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      href="/privacy"
+                      className="underline text-blue-400"
+                      target="_blank"
+                    >
+                      Privacy Policy
+                    </Link>
+                    .
+                  </label>
+                </div>
+                {agreementError && (
+                  <p className="text-red-400 text-sm mt-1">{agreementError}</p>
+                )}
                 {/* Place Order Button */}
                 <Button
                   type="submit"
@@ -490,7 +646,8 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
                 </Button>
 
                 <p className="text-xs text-gray-400 text-center mt-4">
-                  🔒 Your payment information is secure and encrypted with Stripe
+                  🔒 Your payment information is secure and encrypted with
+                  Stripe
                 </p>
               </div>
             </CardContent>
@@ -498,5 +655,5 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
         </div>
       </div>
     </form>
-  )
+  );
 }
