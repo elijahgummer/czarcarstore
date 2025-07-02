@@ -31,7 +31,7 @@ export default function TermsPage() {
             </CardHeader>
             <CardContent className="space-y-4 text-gray-300">
               <p>
-                By accessing and using the CzarCar website (czarcar.com), you accept and agree to be bound by the terms
+                By accessing and using the CzarCar website (czarcars.shop), you accept and agree to be bound by the terms
                 and provision of this agreement. If you do not agree to abide by the above, please do not use this
                 service.
               </p>
@@ -266,15 +266,7 @@ export default function TermsPage() {
             <CardContent className="text-gray-300">
               <p className="mb-4">If you have any questions about these Terms of Service, please contact us:</p>
               <div className="space-y-2 text-gray-400">
-                <p>Email: legal@czarcar.com</p>
-                <p>Phone: +1 (555) 123-4567</p>
-                <p>
-                  Address: 123 Auto Street
-                  <br />
-                  Car City, CC 12345
-                  <br />
-                  United States
-                </p>
+                <p>Email: czarcarphotos@gmail.com</p>
               </div>
             </CardContent>
           </Card>
