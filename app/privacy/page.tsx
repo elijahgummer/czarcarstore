@@ -202,7 +202,7 @@ export default function PrivacyPage() {
               </div>
               <div className="bg-green-900/20 border border-green-700 rounded p-4">
                 <p className="text-green-300 text-sm">
-                  To exercise any of these rights, please contact us at privacy@czarcar.com. We will respond to your
+                  To exercise any of these rights, please contact us at czarcarphotos@gmail.com. We will respond to your
                   request within 30 days.
                 </p>
               </div>
@@ -252,15 +252,7 @@ export default function PrivacyPage() {
                 If you have any questions about this Privacy Policy or our data practices, please contact us:
               </p>
               <div className="space-y-2 text-gray-400">
-                <p>Email: privacy@czarcar.com</p>
-                <p>Phone: +1 (555) 123-4567</p>
-                <p>
-                  Address: 123 Auto Street
-                  <br />
-                  Car City, CC 12345
-                  <br />
-                  United States
-                </p>
+                <p>Email: czarcarphotos@gmail.com</p>
               </div>
             </CardContent>
           </Card>
