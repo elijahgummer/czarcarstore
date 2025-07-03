@@ -21,7 +21,7 @@ export default function CheckoutPage() {
 
   const subtotal = getTotal();
   const tax = subtotal * 0.08; // This will be adjusted based on country in the form
-  const total = subtotal + tax;
+  const total = subtotal;
 
   useEffect(() => {
     if (items.length === 0) {
