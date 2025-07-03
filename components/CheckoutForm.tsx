@@ -55,8 +55,11 @@ const createShippingSchema = (countryCode: string) => {
 
 type ShippingFormData = z.infer<ReturnType<typeof createShippingSchema>>;
 
-interface CheckoutFormProps {
+export interface CheckoutFormProps {
   clientSecret: string;
+  selectedCountry: string;
+  setSelectedCountry: React.Dispatch<React.SetStateAction<string>>;
+  setCurrency: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
@@ -65,8 +68,8 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
   const { items, getTotal, clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState("US");
-  const [currency, setCurrency] = useState("USD");
+  const [selectedCountry, setSelectedCountry] = useState("AU"); // Default to Australia or your choice
+const [currency, setCurrency] = useState("AUD"); // Default to AUD
   const [agreed, setAgreed] = useState(false);
   const [agreementError, setAgreementError] = useState<string | null>(null);
   const country = getCountryByCode(selectedCountry);

@@ -1,31 +1,32 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Elements } from "@stripe/react-stripe-js"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import CheckoutForm from "@/components/CheckoutForm"
-import { useCart } from "@/lib/cart"
-import { stripePromise } from "@/lib/stripe"
-import { Button } from "@/components/ui/button"
-import { ShoppingBag } from "lucide-react"
-import Link from "next/link"
-import toast, { Toaster } from "react-hot-toast"
+import { useState, useEffect } from "react";
+import { Elements } from "@stripe/react-stripe-js";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import CheckoutForm from "@/components/CheckoutForm";
+import { useCart } from "@/lib/cart";
+import { stripePromise } from "@/lib/stripe";
+import { Button } from "@/components/ui/button";
+import { ShoppingBag } from "lucide-react";
+import Link from "next/link";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function CheckoutPage() {
-  const { items, getTotal } = useCart()
-  const [clientSecret, setClientSecret] = useState<string>("")
-  const [loading, setLoading] = useState(true)
-  const [currency, setCurrency] = useState("USD")
+  const { items, getTotal } = useCart();
+  const [clientSecret, setClientSecret] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [currency, setCurrency] = useState("USD");
+  const [selectedCountry, setSelectedCountry] = useState<string>("US");
 
-  const subtotal = getTotal()
-  const tax = subtotal * 0.08 // This will be adjusted based on country in the form
-  const total = subtotal + tax
+  const subtotal = getTotal();
+  const tax = subtotal * 0.08; // This will be adjusted based on country in the form
+  const total = subtotal + tax;
 
   useEffect(() => {
     if (items.length === 0) {
-      setLoading(false)
-      return
+      setLoading(false);
+      return;
     }
 
     // Create PaymentIntent with detailed order information
@@ -35,18 +36,18 @@ export default function CheckoutPage() {
       quantity: item.quantity,
       price: item.product.price,
       total: item.product.price * item.quantity,
-    }))
+    }));
 
-    console.log("Creating payment intent with items:", orderItems)
+    console.log("Creating payment intent with items:", orderItems);
 
     fetch("/api/create-payment-intent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         amount: total,
-        currency: "USD", // Default currency, will be updated based on country selection
+        currency, // Default currency, will be updated based on country selection
         items: orderItems,
-        countryCode: "US", // Default country
+        countryCode: selectedCountry, // Default country
         metadata: {
           order_date: new Date().toISOString(),
           item_count: items.reduce((sum, item) => sum + item.quantity, 0),
@@ -55,27 +56,27 @@ export default function CheckoutPage() {
     })
       .then((res) => {
         if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`)
+          throw new Error(`HTTP error! status: ${res.status}`);
         }
-        return res.json()
+        return res.json();
       })
       .then((data) => {
-        console.log("Payment intent response:", data)
+        console.log("Payment intent response:", data);
         if (data.clientSecret) {
-          setClientSecret(data.clientSecret)
-          setCurrency(data.currency || "USD")
-          toast.success("Checkout ready!")
+          setClientSecret(data.clientSecret);
+          setCurrency(data.currency || "USD");
+          toast.success("Checkout ready!");
         } else {
-          throw new Error("No client secret received")
+          throw new Error("No client secret received");
         }
-        setLoading(false)
+        setLoading(false);
       })
       .catch((error) => {
-        console.error("Error:", error)
-        toast.error("Failed to initialize checkout. Please try again.")
-        setLoading(false)
-      })
-  }, [items, total])
+        console.error("Error:", error);
+        toast.error("Failed to initialize checkout. Please try again.");
+        setLoading(false);
+      });
+  }, [items, total]);
 
   if (loading) {
     return (
@@ -83,11 +84,13 @@ export default function CheckoutPage() {
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Preparing your international checkout...</p>
+          <p className="text-gray-400">
+            Preparing your international checkout...
+          </p>
         </div>
         <Footer />
       </div>
-    )
+    );
   }
 
   if (items.length === 0) {
@@ -96,15 +99,19 @@ export default function CheckoutPage() {
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <ShoppingBag className="h-24 w-24 text-gray-600 mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-silver-400 mb-4">No Items to Checkout</h1>
-          <p className="text-gray-400 mb-8">Add some products to your cart first!</p>
+          <h1 className="text-3xl font-bold text-silver-400 mb-4">
+            No Items to Checkout
+          </h1>
+          <p className="text-gray-400 mb-8">
+            Add some products to your cart first!
+          </p>
           <Button asChild className="bg-red-600 hover:bg-red-700">
             <Link href="/products">Shop Now</Link>
           </Button>
         </div>
         <Footer />
       </div>
-    )
+    );
   }
 
   const appearance = {
@@ -118,12 +125,12 @@ export default function CheckoutPage() {
       spacingUnit: "4px",
       borderRadius: "6px",
     },
-  }
+  };
 
   const options = {
     clientSecret,
     appearance,
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -141,20 +148,28 @@ export default function CheckoutPage() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-silver-400 mb-2">International Checkout</h1>
+          <h1 className="text-3xl font-bold text-silver-400 mb-2">
+            International Checkout
+          </h1>
           <p className="text-gray-400">
-            We ship worldwide! Select your country for local pricing and shipping options.
+            We ship worldwide! Select your country for local pricing and
+            shipping options.
           </p>
         </div>
 
         {clientSecret && (
           <Elements options={options} stripe={stripePromise}>
-            <CheckoutForm clientSecret={clientSecret} />
+            <CheckoutForm
+              clientSecret={clientSecret}
+              selectedCountry={selectedCountry}
+              setSelectedCountry={setSelectedCountry}
+              setCurrency={setCurrency}
+            />
           </Elements>
         )}
       </div>
 
       <Footer />
     </div>
-  )
+  );
 }
