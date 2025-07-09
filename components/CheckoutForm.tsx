@@ -55,7 +55,7 @@ const createShippingSchema = (countryCode: string) => {
 
 // When country changes:
 // (Removed unused handleCountryChange function)
-
+ 
 type ShippingFormData = z.infer<ReturnType<typeof createShippingSchema>>;
 
 export interface CheckoutFormProps {
