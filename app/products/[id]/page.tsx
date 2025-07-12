@@ -59,6 +59,7 @@ export default function ProductDetailPage() {
   const [selectedLength, setSelectedLength] = useState<number | null>(null);
   const [selectedPlug, setSelectedPlug] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [error, setError] = useState<string | null>(null);
 
   if (!product) {
     return (
@@ -97,7 +98,29 @@ export default function ProductDetailPage() {
           ? product.colors[selectedColor].image
           : images[selectedImage] || "/placeholder.svg";
 
+  // Determine if the product requires an option
+  const requiresOption =
+    (product.colors && product.colors.length > 0) ||
+    (product.models && product.models.length > 0) ||
+    (product.modes && product.modes.length > 0) ||
+    (product.lengths && product.lengths.length > 0) ||
+    (product.plugTypes && product.plugTypes.length > 0);
+
+  // Check if all required options are selected
+  const optionSelected =
+    (product.colors && product.colors.length > 0 ? selectedColor !== null : true) &&
+    (product.models && product.models.length > 0 ? selectedModel !== null : true) &&
+    (product.modes && product.modes.length > 0 ? selectedMode !== null : true) &&
+    (product.lengths && product.lengths.length > 0 ? selectedLength !== null : true) &&
+    (product.plugTypes && product.plugTypes.length > 0 ? selectedPlug !== null : true);
+
   const handleAddToCart = () => {
+    if (requiresOption && !optionSelected) {
+      setError("Please select all required options before adding to cart.");
+      return;
+    }
+    setError(null);
+
     const model =
       selectedModel !== null && product.models
         ? product.models[selectedModel]
@@ -424,6 +447,7 @@ export default function ProductDetailPage() {
                 <Button
                   onClick={handleAddToCart}
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3"
+                  disabled={requiresOption && !optionSelected}
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
                   Add to Cart
@@ -435,6 +459,9 @@ export default function ProductDetailPage() {
                   <Heart className="h-5 w-5" />
                 </Button>
               </div>
+              {error && (
+                <p className="text-red-400 mt-2 font-semibold">{error}</p>
+              )}
             </div>
 
             {/* Features */}
