@@ -53,9 +53,6 @@ const createShippingSchema = (countryCode: string) => {
   });
 };
 
-// When country changes:
-// (Removed unused handleCountryChange function)
- 
 type ShippingFormData = z.infer<ReturnType<typeof createShippingSchema>>;
 
 export interface CheckoutFormProps {
@@ -71,8 +68,8 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
   const { items, getTotal, clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState("AU"); // Default to Australia or your choice
-const [currency, setCurrency] = useState("AUD"); // Default to AUD
+  const [selectedCountry, setSelectedCountry] = useState("AU");
+  const [currency, setCurrency] = useState("AUD");
   const [agreed, setAgreed] = useState(false);
   const [agreementError, setAgreementError] = useState<string | null>(null);
   const country = getCountryByCode(selectedCountry);
@@ -94,22 +91,20 @@ const [currency, setCurrency] = useState("AUD"); // Default to AUD
   });
 
   const subtotal = getTotal();
-  const tax = selectedCountry === "US" ? subtotal * 0.08 : 0; // Only apply tax for US
+  const tax = selectedCountry === "US" ? subtotal * 0.08 : 0;
   const total = subtotal + tax;
 
-  // Update currency when country changes
   useEffect(() => {
     if (country && stripeSupportedCurrencies.includes(country.currency)) {
       setCurrency(country.currency);
     } else {
-      setCurrency("USD"); // Fallback to USD for unsupported currencies
+      setCurrency("USD");
     }
   }, [country]);
 
-  // Reset form when country changes
   useEffect(() => {
     setValue("country", selectedCountry);
-    setValue("state", ""); // Reset state when country changes
+    setValue("state", "");
   }, [selectedCountry, setValue]);
 
   useEffect(() => {
@@ -214,13 +209,23 @@ const [currency, setCurrency] = useState("AUD"); // Default to AUD
             paymentIntentId: paymentIntent.id,
           };
 
-          await fetch("/api/send-order-email", {
+          // Debug log to verify orderEmailData
+          console.log("Sending orderEmailData:", orderEmailData);
+
+          const response = await fetch("/api/send-order-email", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderEmailData),
           });
+
+          const result = await response.json();
+          if (!result.success) {
+            console.error("Order email API error:", result.error);
+            toast.error("Order confirmation email failed to send.");
+          }
         } catch (emailError) {
           console.error("Error sending confirmation email:", emailError);
+          toast.error("Order confirmation email failed to send.");
         }
 
         clearCart();
@@ -394,7 +399,7 @@ const [currency, setCurrency] = useState("AUD"); // Default to AUD
                   )}
                 </div>
 
-                {/* State/Province - Show dropdown for supported countries, input for others */}
+                {/* State/Province */}
                 <div>
                   <Label htmlFor="state" className="text-gray-300">
                     {addressLabels.state}{" "}
@@ -599,7 +604,7 @@ const [currency, setCurrency] = useState("AUD"); // Default to AUD
                   </div>
                 </div>
 
-                {/* Agreement Checkbox - add this just above the Place Order Button */}
+                {/* Agreement Checkbox */}
                 <div className="flex items-center space-x-2 mt-4">
                   <input
                     type="checkbox"

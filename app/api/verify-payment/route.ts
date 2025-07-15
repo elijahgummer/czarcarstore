@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
+import { sendOrderConfirmationEmail, sendOrderNotificationToOwner } from "@/lib/email" // import your email functions
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-06-20",
@@ -7,13 +8,24 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: NextRequest) {
   try {
-    const { paymentIntentId } = await request.json()
+    const { paymentIntentId, orderData } = await request.json()
 
     if (!paymentIntentId) {
       return NextResponse.json({ error: "Payment Intent ID required" }, { status: 400 })
     }
 
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
+
+    // Only send emails if payment succeeded
+    if (paymentIntent.status === "succeeded") {
+      try {
+        await sendOrderConfirmationEmail(orderData)
+        await sendOrderNotificationToOwner(orderData)
+        console.log("✅ Order emails sent!")
+      } catch (emailError) {
+        console.error("❌ Error sending order emails:", emailError)
+      }
+    }
 
     return NextResponse.json({
       status: paymentIntent.status,
