@@ -231,7 +231,7 @@ const products: Product[] = [
     name: "10pc Car Perfume Balms Fruit Scent Air Freshener Vent Accessories",
     description:
       "Keep your car smelling amazing with this set of 10 mini balms in refreshing scents like lemon, strawberry, grape, and more. Cute, compact, and easy to use—perfect for any car air vent. Long-lasting fragrance with variety of fruity scents. Easy to install and replace. Stylish and fun car accessory.",
-    price: 0.50,
+    price: 12.95,
     originalPrice: 25.95,
     discount: 31,
     colors: [
