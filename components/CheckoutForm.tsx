@@ -107,30 +107,6 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
     setValue("state", "");
   }, [selectedCountry, setValue]);
 
-  useEffect(() => {
-    if (!stripe) return;
-    if (!clientSecret) return;
-
-    stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
-      switch (paymentIntent?.status) {
-        case "succeeded":
-          setMessage("Payment succeeded!");
-          toast.success("Payment successful!");
-          clearCart();
-          break;
-        case "processing":
-          setMessage("Your payment is processing.");
-          break;
-        case "requires_payment_method":
-          setMessage("Your payment was not successful, please try again.");
-          break;
-        default:
-          setMessage("Something went wrong.");
-          break;
-      }
-    });
-  }, [stripe, clientSecret, clearCart]);
-
   const onSubmit = async (data: ShippingFormData) => {
     if (!agreed) {
       setAgreementError(
@@ -171,7 +147,33 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
       if (elements) {
         confirmPaymentOptions.elements = elements;
       }
-      const { error, paymentIntent } = await stripe.confirmPayment(confirmPaymentOptions);
+
+      // Prepare orderEmailData and save to localStorage for confirmation page
+      const orderEmailData = {
+        customerEmail: data.email,
+        customerName: `${data.firstName} ${data.lastName}`,
+        orderNumber: `CZ-${Date.now().toString().slice(-6)}`,
+        orderTotal: total,
+        orderItems: items.map((item) => ({
+          name: item.product.name,
+          options: item.optionLabel || undefined,
+          quantity: item.quantity,
+          price: item.product.price,
+          total: item.product.price * item.quantity,
+        })),
+        shippingAddress: {
+          name: `${data.firstName} ${data.lastName}`,
+          address: data.address,
+          city: data.city,
+          state: data.state || "",
+          zipCode: data.postalCode,
+        },
+        paymentIntentId: "", // will be set on confirmation page
+      };
+
+      localStorage.setItem("orderEmailData", JSON.stringify(orderEmailData));
+
+      const { error } = await stripe.confirmPayment(confirmPaymentOptions);
 
       if (error) {
         console.error("Payment error:", error);
@@ -182,65 +184,20 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
           setMessage("An unexpected error occurred.");
           toast.error("An unexpected error occurred");
         }
-      } else if (paymentIntent && paymentIntent.status === "succeeded") {
-        toast.success("Payment successful! Check your email for confirmation.");
-
-        // Send order confirmation email
-        try {
-          const orderEmailData = {
-            customerEmail: data.email,
-            customerName: `${data.firstName} ${data.lastName}`,
-            orderNumber: `CZ-${Date.now().toString().slice(-6)}`,
-            orderTotal: total,
-            orderItems: items.map((item) => ({
-              name: item.product.name,
-              options: item.optionLabel || undefined,
-              quantity: item.quantity,
-              price: item.product.price,
-              total: item.product.price * item.quantity,
-            })),
-            shippingAddress: {
-              name: `${data.firstName} ${data.lastName}`,
-              address: data.address,
-              city: data.city,
-              state: data.state || "",
-              zipCode: data.postalCode,
-            },
-            paymentIntentId: paymentIntent.id,
-          };
-
-          // Debug log to verify orderEmailData
-          console.log("Sending orderEmailData:", orderEmailData);
-
-          const response = await fetch("/api/send-order-email", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(orderEmailData),
-          });
-
-          const result = await response.json();
-          if (!result.success) {
-            console.error("Order email API error:", result.error);
-            toast.error("Order confirmation email failed to send.");
-          }
-        } catch (emailError) {
-          console.error("Error sending confirmation email:", emailError);
-          toast.error("Order confirmation email failed to send.");
-        }
-
-        clearCart();
-        window.location.href = `/order-confirmation?payment_intent=${paymentIntent.id}&payment_intent_client_secret=${paymentIntent.client_secret}`;
+        setIsProcessing(false);
+        return;
       }
+
+      // Cart will be cleared on confirmation page after email is sent
     } catch (err) {
       console.error("Unexpected error:", err);
       setMessage("An unexpected error occurred.");
       toast.error("An unexpected error occurred");
+      setIsProcessing(false);
     }
-
-    setIsProcessing(false);
   };
 
-  return (
+ return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Shipping Information */}

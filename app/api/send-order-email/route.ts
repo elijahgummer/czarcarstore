@@ -4,6 +4,7 @@ import { sendOrderConfirmationEmail, sendOrderNotificationToOwner, type OrderEma
 export async function POST(request: NextRequest) {
   try {
     const orderData: OrderEmailData = await request.json()
+    console.log("Received orderData:", orderData); // <-- Add this line
 
     // Validate required fields
     if (!orderData.customerEmail || !orderData.customerName || !orderData.orderNumber) {

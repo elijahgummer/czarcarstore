@@ -8,16 +8,25 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, Package, Truck, Mail } from "lucide-react"
 import Link from "next/link"
+import { useCart } from "@/lib/cart"
 
 export default function OrderConfirmationPage() {
   const searchParams = useSearchParams()
+  interface OrderEmailData {
+    customerEmail?: string
+    paymentIntentId?: string
+    [key: string]: any
+  }
+
   const [orderDetails, setOrderDetails] = useState<any>(null)
+  const [emailSent, setEmailSent] = useState(false)
   const paymentIntent = searchParams.get("payment_intent")
   const paymentIntentClientSecret = searchParams.get("payment_intent_client_secret")
+  const { clearCart } = useCart()
 
+  // 1. Verify payment and set order details
   useEffect(() => {
     if (paymentIntent) {
-      // Verify payment with Stripe
       fetch("/api/verify-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -44,7 +53,34 @@ export default function OrderConfirmationPage() {
           console.error("Error fetching payment details:", error)
         })
     }
-  }, [paymentIntent])
+
+    if (paymentIntent && !emailSent) {
+      let orderEmailData: OrderEmailData = {}
+      try {
+        orderEmailData = JSON.parse(localStorage.getItem("orderEmailData") || "{}")
+      } catch {
+        orderEmailData = {}
+      }
+
+      if (orderEmailData && orderEmailData.customerEmail) {
+        orderEmailData.paymentIntentId = paymentIntent
+
+        fetch("/api/send-order-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderEmailData),
+        })
+          .then((res) => res.json())
+          .then((result) => {
+            if (result.success) {
+              clearCart()
+              localStorage.removeItem("orderEmailData")
+              setEmailSent(true)
+            }
+          })
+      }
+    }
+  }, [paymentIntent, emailSent, clearCart])
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
